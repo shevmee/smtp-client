@@ -1,8 +1,11 @@
+#pragma once
+
 #include <vector>
 #include <string>
+#include <initializer_list>
 
-class MailAddress {};
-class MailMessage {};
+#include "MailAddress.h"
+#include "MailMessage.h"
 
 namespace ISXSC
 {
@@ -20,9 +23,9 @@ namespace ISXSC
 
     private:
         MailAddress m_from;
-        std::vector<MailAddress> m_to;
-        std::vector<MailAddress> m_cc;
-        std::vector<MailAddress> m_bcc;
+        std::vector<MailAddress> m_to = {};
+        std::vector<MailAddress> m_cc = {};
+        std::vector<MailAddress> m_bcc = {};
         std::string m_subject;
         std::string m_body;
         // std::vector<Attachment> attachments;

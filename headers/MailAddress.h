@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 
 namespace ISXSC
@@ -5,8 +7,7 @@ namespace ISXSC
     class MailAddress
     {
     public:
-        MailAddress(const std::string& address);
-        MailAddress(const std::string& address, const std::string& name);
+        MailAddress(const std::string& address = "", const std::string& name = "");
     
         operator std::string() const;
     

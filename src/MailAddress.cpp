@@ -3,8 +3,7 @@
 
 namespace ISXSC
 {
-    MailAddress::MailAddress(const std::string& address): m_address(address), m_name(""){}
-    
+
     MailAddress::MailAddress(const std::string& address, const std::string& name): m_address(address), m_name(name){}
     
     MailAddress::operator std::string() const
@@ -17,5 +16,15 @@ namespace ISXSC
         {
             return m_address;
         }
+    }
+
+    std::string MailAddress::get_address() const
+    {
+        return m_address;
+    }
+
+    std::string MailAddress::get_name() const
+    {
+        return m_name;
     }
 }

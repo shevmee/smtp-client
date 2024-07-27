@@ -1,5 +1,8 @@
 #include "MailMessageBuilder.h"
 
+#include "MailAddress.h"
+#include "MailMessage.h"
+
 namespace ISXSC
 {
     MailMessageBuilder& MailMessageBuilder::SetFrom(const MailAddress& from)
@@ -40,6 +43,12 @@ namespace ISXSC
 
     MailMessage MailMessageBuilder::Build()
     {
-        // Implement once branch is merged with MailMessage.h and MailAddress.h
+        if (m_from.get_address().empty())
+        {
+            // throw error
+        }
+
+        MailMessage message { m_from, m_to, m_cc, m_bcc, m_subject, m_body };
+        return message;
     }
 }

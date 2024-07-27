@@ -1,7 +1,8 @@
+#pragma once
+
 #include <vector>
 #include <string>
-
-class MailAddress {};
+#include "MailAddress.h"
 
 namespace ISXSC
 {
