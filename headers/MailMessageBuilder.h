@@ -12,10 +12,10 @@ namespace ISXSC
     class MailMessageBuilder
     {
     public:
-        MailMessageBuilder& SetFrom(const MailAddress& from);
-        MailMessageBuilder& AddTo(const MailAddress& to);
-        MailMessageBuilder& AddCc(const MailAddress& cc);
-        MailMessageBuilder& AddBcc(const MailAddress& bcc);
+        MailMessageBuilder& SetFrom(const std::string& email, const std::string& name = "");
+        MailMessageBuilder& AddTo(const std::string& email, const std::string& name = "");
+        MailMessageBuilder& AddCc(const std::string& email, const std::string& name = "");
+        MailMessageBuilder& AddBcc(const std::string& email, const std::string& name = "");
         MailMessageBuilder& SetSubject(const std::string& subject);
         MailMessageBuilder& SetBody(const std::string& body);
         // MailMessageBuilder& SetAttachment(const Attachment& attachment);

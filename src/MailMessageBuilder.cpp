@@ -5,27 +5,27 @@
 
 namespace ISXSC
 {
-    MailMessageBuilder& MailMessageBuilder::SetFrom(const MailAddress& from)
+    MailMessageBuilder& MailMessageBuilder::SetFrom(const std::string& email, const std::string& name)
     {
-        m_from = from;
+        m_from = { email, name };
         return *this;
     }
 
-    MailMessageBuilder& MailMessageBuilder::AddTo(const MailAddress& to)
+    MailMessageBuilder& MailMessageBuilder::AddTo(const std::string& email, const std::string& name)
     {
-        m_to.push_back(to);
+        m_to.push_back({ email, name });
         return *this;
     }
 
-    MailMessageBuilder& MailMessageBuilder::AddCc(const MailAddress& cc)
+    MailMessageBuilder& MailMessageBuilder::AddCc(const std::string& email, const std::string& name)
     {
-        m_cc.push_back(cc);
+        m_cc.push_back({ email, name });
         return *this;
     }
 
-    MailMessageBuilder& MailMessageBuilder::AddBcc(const MailAddress& bcc)
+    MailMessageBuilder& MailMessageBuilder::AddBcc(const std::string& email, const std::string& name)
     {
-        m_bcc.push_back(bcc);
+        m_bcc.push_back({ email, name });
         return *this;
     }
 
