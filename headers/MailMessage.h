@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "MailAddress.h"
+#include "MailAttachment.h"
 
 namespace ISXSC
 {
@@ -14,6 +15,6 @@ namespace ISXSC
         std::vector<MailAddress> bcc;
         std::string subject;
         std::string body;
-        // std::vector<Attachment> attachments;
+        std::vector<MailAttachment> attachments;
     };
 }

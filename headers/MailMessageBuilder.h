@@ -6,6 +6,7 @@
 
 #include "MailAddress.h"
 #include "MailMessage.h"
+#include "MailAttachment.h"
 
 namespace ISXSC
 {
@@ -18,7 +19,7 @@ namespace ISXSC
         MailMessageBuilder& AddBcc(const std::string& email, const std::string& name = "");
         MailMessageBuilder& SetSubject(const std::string& subject);
         MailMessageBuilder& SetBody(const std::string& body);
-        // MailMessageBuilder& SetAttachment(const Attachment& attachment);
+        MailMessageBuilder& AddAttachment(const std::string &path);
         MailMessage Build();
 
     private:
@@ -28,6 +29,6 @@ namespace ISXSC
         std::vector<MailAddress> m_bcc = {};
         std::string m_subject;
         std::string m_body;
-        // std::vector<Attachment> attachments;
+        std::vector<MailAttachment> attachments;
     };
 }
