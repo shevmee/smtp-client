@@ -1,5 +1,4 @@
 #include "MailAddress.h"
-#include <format>
 
 namespace ISXSC
 {
@@ -10,7 +9,7 @@ namespace ISXSC
     {
         if (!m_name.empty())
         {
-            return std::format("{} <{}>", m_name, m_address);
+            return m_name + " <" + m_address + ">";
         }
         else 
         {
