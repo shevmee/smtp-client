@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.0)
+
+project(SmtpClient VERSION 1.0)
+
+set(CMAKE_CXX_STANDARD 17)
+
+# Find OpenSSL package
+find_package(OpenSSL REQUIRED)
+
+# Add executable target
+add_executable(client)
+
+# Specify source files
+target_sources(client PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SmtpClient.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+)
+
+# Include directories for the client target
+target_include_directories(client PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/headers
+)
+
+# Add subdirectory for the SmartSocket library
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/SmartSocket)
+
+# Add subdirectory for the Base64 library
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/Base64)
+
+# Link libraries to the client target
+target_link_libraries(client PRIVATE
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    SmartSocket
+    Base64
+)
