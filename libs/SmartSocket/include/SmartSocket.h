@@ -26,7 +26,7 @@ namespace ISXSmartSocket
         bool Connect(const string& server, int port);
         
         bool Write(const string& data);
-        string Read();
+        string Read(bool raw_output = false);
         
         bool Shutdown();
         bool Close();
@@ -49,5 +49,7 @@ namespace ISXSmartSocket
         boost::asio::io_context& m_io_context;
         boost::asio::ssl::context& m_ssl_context;
         boost::asio::ssl::stream<tcp::socket> m_socket;
+
+        string& FormatSeverOutput(string raw_output);
     };
 }; // namespace ISXSmartSocket

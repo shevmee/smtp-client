@@ -60,7 +60,7 @@ namespace ISXSmartSocket
         return false;
     };
 
-    string SmartSocket::Read()
+    string SmartSocket::Read(bool raw_output)
     {
         asio::streambuf buffer;
         system::error_code ec;
@@ -84,14 +84,8 @@ namespace ISXSmartSocket
                 std::ostream_iterator<char>(response)
             );
 
-            // Formatting response, so that each line received from server starts with "S: "
-            string processed_response = response.str();
-            processed_response = std::regex_replace(processed_response, std::regex("\n"), "\nS: ");
-            processed_response.erase(--processed_response.end());
-            processed_response.erase(--processed_response.end());
-            processed_response.erase(--processed_response.end());
-
-            return processed_response;
+            string formated_response = FormatSeverOutput(response.str());
+            return formated_response;
         };
 
         std::cerr << "Error receiving: " << ec.message() << std::endl;
@@ -101,12 +95,26 @@ namespace ISXSmartSocket
     bool SmartSocket::Shutdown()
     {
         system::error_code ec;
-        m_socket.next_layer().shutdown(tcp::socket::shutdown_both, ec);
+    
+        if (IsOpen())
+        {
+            if (!m_ssl_enabled)
+            {
+                m_socket.next_layer().shutdown(tcp::socket::shutdown_both, ec);
+            } else
+            {
+                m_socket.shutdown(ec);
+            };
+        } else
+        {
+            return true;
+        }
+    
         if (!ec)
         {
             return true;
         };
-
+    
         std::cerr << "Error shutdown: " << ec.message() << std::endl;
         return false;
     };
@@ -165,4 +173,16 @@ namespace ISXSmartSocket
     {
         return m_socket.next_layer().remote_endpoint().port();
     };
+
+    string& SmartSocket::FormatSeverOutput(string raw_output)
+    {
+        // Formatting response, so that each line received from server starts with "S: "
+        raw_output = std::regex_replace(raw_output, std::regex("\n"), "\nS: ");
+        raw_output.erase(--raw_output.end());
+        raw_output.erase(--raw_output.end());
+        raw_output.erase(--raw_output.end());
+    
+        string& processed = raw_output;
+        return processed;
+    }
 }; // namespace ISXSmartSocket
