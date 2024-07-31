@@ -6,16 +6,18 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/format.hpp>
+#include <boost/asio/spawn.hpp>
 
 #include <iostream>
 #include <string>
 
+using namespace boost;
 using std::string;
 using std::unique_ptr;
 using std::string;
 using std::future;
 
-using boost::asio::ip::tcp;
+using asio::ip::tcp;
 
 namespace ISXSC
 {
@@ -32,12 +34,14 @@ namespace ISXSC
 
         // smtp with starttls extension uses 587 port
         SmtpClient(
-            boost::asio::io_context& io_context
-            , boost::asio::ssl::context& ssl_context);
+            asio::io_context& io_context
+            , asio::ssl::context& ssl_context);
 
         ~SmtpClient();
 
         bool Connect(const string& server, int port);
+        bool AsyncConnect(const string& server, int port);
+
         bool Dispose();
 
         bool Authenticate(const string& username, const string& password);

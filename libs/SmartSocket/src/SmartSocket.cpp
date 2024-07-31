@@ -1,11 +1,13 @@
 #include "SmartSocket.h"
 
 #include <iostream>
-#include <boost/asio.hpp>
+#include <boost/asio/spawn.hpp>
 
 namespace ISXSmartSocket
 {
-    SmartSocket::SmartSocket(asio::io_context& io_context, asio::ssl::context& ssl_context):
+    SmartSocket::SmartSocket(
+        asio::io_context& io_context
+        , asio::ssl::context& ssl_context):
         m_io_context(io_context)
         , m_ssl_context(ssl_context)
         , m_resolver(io_context)
@@ -84,7 +86,12 @@ namespace ISXSmartSocket
                 std::ostream_iterator<char>(response)
             );
 
-            string formated_response = FormatSeverOutput(response.str());
+            if (raw_output)
+            {
+                return response.str();
+            };
+
+            string formated_response = FormatServerOutput(response.str());
             return formated_response;
         };
 
@@ -174,7 +181,7 @@ namespace ISXSmartSocket
         return m_socket.next_layer().remote_endpoint().port();
     };
 
-    string& SmartSocket::FormatSeverOutput(string raw_output)
+    string& SmartSocket::FormatServerOutput(string raw_output)
     {
         // Formatting response, so that each line received from server starts with "S: "
         raw_output = std::regex_replace(raw_output, std::regex("\n"), "\nS: ");
@@ -184,5 +191,87 @@ namespace ISXSmartSocket
     
         string& processed = raw_output;
         return processed;
-    }
+    };
+
+    boost::asio::io_context& SmartSocket::GetIoContext()
+    {
+        return m_io_context;
+    };
+
+    bool SmartSocket::AsyncConnectCoroutine(const string& server, int port, asio::yield_context& yield)
+    {
+        m_server = server;
+        m_port = port;
+
+        system::error_code ec;
+
+        tcp::resolver::query query(m_server, std::to_string(m_port));
+        tcp::resolver::results_type results = m_resolver.resolve(query);
+        asio::async_connect(m_socket.next_layer(), results.begin(), results.end(), yield[ec]);
+        
+        if (!ec)
+        {
+            std::cout << "Connected to " << GetServername() << ":" << GetServerPort() << std::endl;
+            return true;
+        };
+
+        std::cout << "Error: " << ec.message() << std::endl;
+        return false;
+    };
+
+    bool SmartSocket::AsyncWriteCoroutine(const string& data, asio::yield_context& yield)
+    {
+        system::error_code ec;
+        if (!m_ssl_enabled)
+        {
+            asio::async_write(m_socket.next_layer(), asio::buffer(data), yield[ec]);
+        } else
+        {
+            asio::async_write(m_socket, asio::buffer(data), yield[ec]);
+        };
+
+        if (!ec)
+        {
+            std::cout << "C: " << data;
+            return true;
+        };
+        
+        std::cerr << "Error sending: " << ec.message() << std::endl;
+        return false;
+    };
+
+    string SmartSocket::AsyncReadCoroutine(asio::yield_context& yield, bool raw_output)
+    {
+        asio::streambuf buffer;
+        system::error_code ec;
+        if (!m_ssl_enabled)
+        {
+            asio::async_read_until(m_socket.next_layer(), buffer, "\r\n", yield[ec]);   
+        } else
+        {
+            asio::async_read_until(m_socket, buffer, "\r\n", yield[ec]);   
+        };
+
+        if (!ec)
+        {
+            std::stringstream response;
+            response << "S: ";
+            std::copy(
+                asio::buffers_begin(buffer.data()),
+                asio::buffers_end(buffer.data()),
+                std::ostream_iterator<char>(response)
+            );
+
+            if (raw_output)
+            {
+                return response.str();
+            };
+
+            string formated_response = FormatServerOutput(response.str());
+            return formated_response;
+        };
+
+        std::cerr << "Error receiving: " << ec.message() << std::endl;
+        return string();
+    };
 }; // namespace ISXSmartSocket

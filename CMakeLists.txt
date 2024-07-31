@@ -7,6 +7,10 @@ set(CMAKE_CXX_STANDARD 17)
 # Find OpenSSL package
 find_package(OpenSSL REQUIRED)
 
+# Find Boost package with all requirements
+find_package(Boost 1.70 REQUIRED COMPONENTS system coroutine)
+include_directories(${Boost_INCLUDE_DIRS})
+
 # Add executable target
 add_executable(client)
 
@@ -33,4 +37,5 @@ target_link_libraries(client PRIVATE
     OpenSSL::Crypto
     SmartSocket
     Base64
+    ${Boost_LIBRARIES}
 )

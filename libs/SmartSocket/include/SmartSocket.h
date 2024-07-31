@@ -2,10 +2,12 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+#include <boost/asio/spawn.hpp>
 
 #include <string>
 #include <sstream>
 #include <regex>
+#include <future>
 
 using namespace boost;
 
@@ -19,8 +21,9 @@ namespace ISXSmartSocket
     {
     public:
         SmartSocket(
-            asio::io_context& m_io_context
-            , asio::ssl::context& m_ssl_context);
+            asio::io_context& io_context
+            , asio::ssl::context& ssl_context);
+
         ~SmartSocket();
 
         bool Connect(const string& server, int port);
@@ -39,6 +42,13 @@ namespace ISXSmartSocket
         string GetServername() const;
         int GetServerPort() const;
 
+        boost::asio::io_context& GetIoContext();
+
+        // Async part
+        bool AsyncConnectCoroutine(const string& server, int port, asio::yield_context& yield);
+        bool AsyncWriteCoroutine(const string& data, asio::yield_context& yield);
+        string AsyncReadCoroutine(asio::yield_context& yield, bool raw_output = false);
+
     private:
         string m_server;
         int m_port;
@@ -46,10 +56,10 @@ namespace ISXSmartSocket
         bool m_ssl_enabled;
 
         tcp::resolver m_resolver;
-        boost::asio::io_context& m_io_context;
-        boost::asio::ssl::context& m_ssl_context;
-        boost::asio::ssl::stream<tcp::socket> m_socket;
+        asio::io_context& m_io_context;
+        asio::ssl::context& m_ssl_context;
+        asio::ssl::stream<tcp::socket> m_socket;
 
-        string& FormatSeverOutput(string raw_output);
+        string& FormatServerOutput(string raw_output);
     };
 }; // namespace ISXSmartSocket
