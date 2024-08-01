@@ -11,133 +11,127 @@
 #include "MailAddress.h"
 #include "MailAttachment.h"
 
+std::string Base64Encode(const std::string& decoded) {
+    auto encoded_size = boost::beast::detail::base64::encoded_size(decoded.size());
+    std::string encoded_output(encoded_size, '\0');
+    boost::beast::detail::base64::encode(encoded_output.data(), decoded.data(), decoded.size());
 
-std::string Base64Encode(const std::string& decoded)
-    {
-        auto encoded_size = boost::beast::detail::base64::encoded_size(decoded.size());
-        std::string encoded_output(encoded_size, '\0');
-        boost::beast::detail::base64::encode(encoded_output.data(), decoded.data(), decoded.size());
-        // add endlines every 500 characters to prevent long lines
-        for (size_t i = 500; i < encoded_output.size(); i += 500)
-        {
-            encoded_output.insert(i, "\r\n");
-            i+=2;
-        }
-        return encoded_output;
-    };
+    for (size_t i = 500; i < encoded_output.size(); i += 502) {
+        encoded_output.insert(i, "\r\n");
+    }
 
-std::string Readfile(const std::string& filename)
+    return encoded_output;
+}
+
+std::string ReadFile(const std::string& filename)
 {
     std::ifstream t(filename);
     std::string str;
 
     t.seekg(0, std::ios::end);   
-    str.reserve(t.tellg());
+    uint32_t size = t.tellg();
     t.seekg(0, std::ios::beg);
+
+    if (size > ISXSC::MailAttachment::S_MAX_SIZE) {
+        throw std::runtime_error("File is too big");
+    }
+
+    str.reserve(size);
 
     str.assign((std::istreambuf_iterator<char >(t)),
     std::istreambuf_iterator<char>());
     return str;
 }
 
-namespace ISXSC
-{
+namespace ISXSC {
 
-    std::string MailMessageFormatter::MailFormat(const MailMessage& message)
-    {
-        std::string formatted_message = MailHeaders(message);
-        formatted_message += MailBody(message);
-        formatted_message += MailAttachments(message.attachments);
+    std::string MailMessageFormatter::MailFormat(const MailMessage& message) {
+        std::ostringstream formatted_message;
+        formatted_message << MailHeaders(message)
+                          << MailBody(message)
+                          << MailAttachments(message.attachments);
 
-        return formatted_message;
+        return formatted_message.str();
     }
 
-    std::string MailMessageFormatter::MailFrom(const MailAddress& from)
-    {
+    std::string MailMessageFormatter::MailFrom(const MailAddress& from) {
         return "From: " + from.get_name() + " <" + from.get_address() + ">\r\n";
     }
 
-    std::string MailMessageFormatter::MailTo(const std::vector<MailAddress>& to)
-    {
-        std::string to_string = "To: ";
-        for (const auto& address : to)
-        {
-            to_string += address.get_name() + " <" + address.get_address() + ">, ";
+    std::string MailMessageFormatter::MailTo(const std::vector<MailAddress>& to) {
+        std::ostringstream to_stream;
+        to_stream << "To: ";
+        for (const auto& address : to) {
+            to_stream << address.get_name() << " <" << address.get_address() << ">, ";
         }
-        to_string.pop_back();
-        to_string.pop_back();
+        std::string to_string = to_stream.str();
+        to_string.erase(to_string.length() - 2, 2);
         to_string += "\r\n";
+
         return to_string;
     }
 
-    std::string MailMessageFormatter::MailCc(const std::vector<MailAddress>& cc)
-    {
-        std::string cc_string = "CC: ";
-        for (const auto& address : cc)
-        {
-            cc_string += address.get_address() + " <" + address.get_name() + ">, ";
+    std::string MailMessageFormatter::MailCc(const std::vector<MailAddress>& cc) {
+        if (cc.empty()) {
+            return "";
         }
-        cc_string.pop_back();
-        cc_string.pop_back();
+
+        std::ostringstream cc_stream;
+        cc_stream << "CC: ";
+        for (const auto& address : cc) {
+            cc_stream << address.get_address() << " <" << address.get_name() << ">, ";
+        }
+        std::string cc_string = cc_stream.str();
+        cc_string.erase(cc_string.length() - 2, 2);
         cc_string += "\r\n";
+
         return cc_string;
     }
 
-    std::string MailMessageFormatter::MailHeaders(const MailMessage& message)
-    {
-        std::string headers = MailFrom(message.from);
-        headers += MailTo(message.to);
+    std::string MailMessageFormatter::MailHeaders(const MailMessage& message) {
+        std::ostringstream headers;
+        headers << MailFrom(message.from)
+                << MailTo(message.to)
+                << MailCc(message.cc)
+                << "Subject: " + message.subject + "\r\n";
 
-        if (!message.cc.empty())
-            headers += MailCc(message.cc);
-
-        headers += "Subject: " + message.subject + "\r\n";
-
-        if (!message.attachments.empty())
-        {
-            headers += "MIME-Version: 1.0\r\n";
-            headers += "Content-Type: multipart/mixed; boundary=\"boundary\"\r\n";
+        if (!message.attachments.empty()) {
+            headers << "MIME-Version: 1.0\r\n"
+                    << "Content-Type: multipart/mixed; boundary=\"boundary\"\r\n";
         }
 
-        return headers + "\r\n";
+        headers << "\r\n";
+        return headers.str();
     }
 
-    std::string MailMessageFormatter::MailBody(const MailMessage& message)
-    {
-        std::string body = {};
+    std::string MailMessageFormatter::MailBody(const MailMessage& message) {
+        std::ostringstream body;
 
-        if (!message.attachments.empty())
-        {
-            body += "--" + boundary + "\r\n";
-            body += "Content-Type: text/plain; charset=\"UTF-8\"\r\n";
-            body += "Content-Transfer-Encoding: 7bit\r\n\r\n";
+        if (!message.attachments.empty()) {
+            body << "--boundary\r\n"
+                 << "Content-Type: text/plain; charset=\"UTF-8\"\r\n"
+                 << "Content-Transfer-Encoding: 7bit\r\n\r\n";
         }
 
-        body += message.body + "\r\n";
-
-        return body;
+        body << message.body + "\r\n";
+        return body.str();
     }
 
-    std::string MailMessageFormatter::MailAttachments(const std::vector<MailAttachment>& attachments)
-    {
-        std::string formatted_attachments = {};
-
-        for (const auto& attachment : attachments)
-        {
-            
-            formatted_attachments += "--" + boundary + "\r\n";
-            formatted_attachments += "Content-Type: application/octet-stream; name=\"" + attachment.get_name() + "\"\r\n";
-            formatted_attachments += "Content-Transfer-Encoding: base64\r\n";
-            formatted_attachments += "Content-Disposition: attachment; filename=\"" + attachment.get_name() + "\"\r\n";
-            formatted_attachments += "\r\n";
-            formatted_attachments += Base64Encode(Readfile(attachment.get_path())) + "\r\n";
+    std::string MailMessageFormatter::MailAttachments(const std::vector<MailAttachment>& attachments) {
+        if (attachments.empty()) {
+            return "";
         }
 
-        if (!attachments.empty())
-        {
-            formatted_attachments += "--" + boundary + "--\r\n";
+        std::ostringstream formatted_attachments;
+        for (const auto& attachment : attachments) {
+            formatted_attachments << "--boundary\r\n"
+                                  << "Content-Type: application/octet-stream; name=\"" + attachment.get_name() + "\"\r\n"
+                                  << "Content-Transfer-Encoding: base64\r\n"
+                                  << "Content-Disposition: attachment; filename=\"" + attachment.get_name() + "\"\r\n\r\n"
+                                  << Base64Encode(ReadFile(attachment.get_path())) + "\r\n";
         }
 
-        return formatted_attachments;
+        formatted_attachments << "--boundary--\r\n";
+        return formatted_attachments.str();
     }
 }
