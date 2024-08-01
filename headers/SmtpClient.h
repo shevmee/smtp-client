@@ -32,15 +32,12 @@ namespace ISXSC
         inline static const string S_CMD_DATA = "DATA";
         inline static const string S_CMD_QUIT = "QUIT";
 
-        // smtp with starttls extension uses 587 port
-        SmtpClient(
-            asio::io_context& io_context
-            , asio::ssl::context& ssl_context);
+        SmtpClient(asio::io_context& io_context, asio::ssl::context& ssl_context);
 
         ~SmtpClient();
 
         bool Connect(const string& server, int port);
-        bool AsyncConnect(const string& server, int port);
+        future<void> AsyncConnect(const string& server, int port);
 
         bool Dispose();
 

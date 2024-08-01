@@ -36,23 +36,37 @@ namespace ISXSC
         return UpgradeSecurity();
     };
 
-    bool SmtpClient::AsyncConnect(const string& server, int port)
+    future<void> SmtpClient::AsyncConnect(const string& server, int port)
     {
-        asio::spawn(m_smart_socket.GetIoContext(), [this, server, port](asio::yield_context yield)
-        {
-            m_smart_socket.AsyncConnectCoroutine(server, port, yield);
-            std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+        std::promise<void> promise;
+        future<void> future = promise.get_future();
 
-            SendEhloCmd();
-            std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-
-            SendStartTlsCmd();
-            std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-
-            UpgradeSecurity();
-        });
+        system::error_code ec;
         
-        return true;
+        asio::post(
+            m_smart_socket.GetIoContext()
+            , [this, server, port, promise = std::move(promise), &ec]()
+            mutable
+            {
+                asio::spawn(m_smart_socket.GetIoContext(), [this, server, port, promise = std::move(promise)](asio::yield_context yield)
+                mutable
+                {
+                    m_smart_socket.AsyncConnectCoroutine(server, port, yield);
+                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                
+                    SendEhloCmd();
+                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                
+                    SendStartTlsCmd();
+                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                
+                    UpgradeSecurity();
+                    promise.set_value();
+                });
+            }
+        );
+        
+        return future;
     };
 
     bool SmtpClient::Dispose()

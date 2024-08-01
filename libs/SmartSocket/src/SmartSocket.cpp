@@ -198,6 +198,7 @@ namespace ISXSmartSocket
         return m_io_context;
     };
 
+    // Async part
     bool SmartSocket::AsyncConnectCoroutine(const string& server, int port, asio::yield_context& yield)
     {
         m_server = server;
@@ -206,7 +207,7 @@ namespace ISXSmartSocket
         system::error_code ec;
 
         tcp::resolver::query query(m_server, std::to_string(m_port));
-        tcp::resolver::results_type results = m_resolver.resolve(query);
+        tcp::resolver::results_type results = m_resolver.async_resolve(query, yield[ec]);
         asio::async_connect(m_socket.next_layer(), results.begin(), results.end(), yield[ec]);
         
         if (!ec)
