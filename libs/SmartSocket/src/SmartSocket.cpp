@@ -91,8 +91,7 @@ namespace ISXSmartSocket
                 return response.str();
             };
 
-            string formated_response = FormatServerOutput(response.str());
-            return formated_response;
+            return FormatServerOutput(response.str());
         };
 
         std::cerr << "Error receiving: " << ec.message() << std::endl;
@@ -268,8 +267,7 @@ namespace ISXSmartSocket
                 return response.str();
             };
 
-            string formated_response = FormatServerOutput(response.str());
-            return formated_response;
+            return FormatServerOutput(response.str());
         };
 
         std::cerr << "Error receiving: " << ec.message() << std::endl;
