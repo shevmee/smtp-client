@@ -3,10 +3,42 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <fstream>
+#include <iostream>
+
+#include <boost/beast/core/detail/base64.hpp>
 #include "MailMessage.h"
 #include "MailAddress.h"
 #include "MailAttachment.h"
 
+
+std::string Base64Encode(const std::string& decoded)
+    {
+        auto encoded_size = boost::beast::detail::base64::encoded_size(decoded.size());
+        std::string encoded_output(encoded_size, '\0');
+        boost::beast::detail::base64::encode(encoded_output.data(), decoded.data(), decoded.size());
+        // add endlines every 500 characters to prevent long lines
+        for (size_t i = 500; i < encoded_output.size(); i += 500)
+        {
+            encoded_output.insert(i, "\r\n");
+            i+=2;
+        }
+        return encoded_output;
+    };
+
+std::string Readfile(const std::string& filename)
+{
+    std::ifstream t(filename);
+    std::string str;
+
+    t.seekg(0, std::ios::end);   
+    str.reserve(t.tellg());
+    t.seekg(0, std::ios::beg);
+
+    str.assign((std::istreambuf_iterator<char >(t)),
+    std::istreambuf_iterator<char>());
+    return str;
+}
 
 namespace ISXSC
 {
@@ -98,7 +130,7 @@ namespace ISXSC
             formatted_attachments += "Content-Transfer-Encoding: base64\r\n";
             formatted_attachments += "Content-Disposition: attachment; filename=\"" + attachment.get_name() + "\"\r\n";
             formatted_attachments += "\r\n";
-            formatted_attachments += attachment.get_name() + "(base64 encoded)" + "\r\n";
+            formatted_attachments += Base64Encode(Readfile(attachment.get_path())) + "\r\n";
         }
 
         if (!attachments.empty())
