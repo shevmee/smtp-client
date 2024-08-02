@@ -57,7 +57,7 @@ namespace ISXSC
                     AsyncSendEhloCmd(yield);
                     std::cout << m_smart_socket.AsyncReadCoroutine(yield);
                 
-                    SendStartTlsCmd();
+                    AsyncSendStartTlsCmd(yield);
                     std::cout << m_smart_socket.AsyncReadCoroutine(yield);
                 
                     UpgradeSecurity();
@@ -131,5 +131,10 @@ namespace ISXSC
             % m_smart_socket.GetLocalPort()).str();
 
         return m_smart_socket.AsyncWriteCoroutine(query, yield);   
+    };
+
+    bool SmtpClient::AsyncSendStartTlsCmd(asio::yield_context& yield)
+    {
+        return m_smart_socket.AsyncWriteCoroutine(S_CMD_STARTTLS + "\r\n", yield);
     };
 }; // namespace ISXSC

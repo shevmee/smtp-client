@@ -67,5 +67,6 @@ namespace ISXSC
         
         // Async
         bool AsyncSendEhloCmd(asio::yield_context& yield);
+        bool AsyncSendStartTlsCmd(asio::yield_context& yield);
     };
 }; // namespace ISXSC
