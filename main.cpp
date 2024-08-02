@@ -34,6 +34,10 @@ int main()
     connection2.get();
     std::cout << "connection established" << std::endl;
 
+    // Example of async authenticate to smtp server
+    future<void> authentication = smtp_client.AsyncAuthenticate("username", "password");
+    authentication.get();
+
     // Stop the io_context to finish processing
     io_context.stop();
     
