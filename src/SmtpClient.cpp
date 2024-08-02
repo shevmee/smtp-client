@@ -164,6 +164,21 @@ namespace ISXSC
     };
 
     // Async part
+    bool SmtpClient::AsyncSendEhloCmd(asio::yield_context& yield)
+    {
+        string query = (format("%1% %2%:%3% \r\n")
+            % S_CMD_EHLO
+            % m_smart_socket.GetLocalname()
+            % m_smart_socket.GetLocalPort()).str();
+
+        return m_smart_socket.AsyncWriteCoroutine(query, yield);   
+    };
+
+    bool SmtpClient::AsyncSendStartTlsCmd(asio::yield_context& yield)
+    {
+        return m_smart_socket.AsyncWriteCoroutine(S_CMD_STARTTLS + "\r\n", yield);
+    };
+
     bool SmtpClient::AsyncUpgradeSecurity(asio::yield_context& yield)
     {
         return m_smart_socket.AsyncUpgradeSecurityCoroutine(yield);
