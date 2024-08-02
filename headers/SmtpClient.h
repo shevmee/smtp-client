@@ -33,14 +33,12 @@ namespace ISXSC
         inline static const string S_CMD_QUIT = "QUIT";
 
         SmtpClient(asio::io_context& io_context, asio::ssl::context& ssl_context);
-
         ~SmtpClient();
 
+        // Strand part
         bool Connect(const string& server, int port);
-
-        bool Dispose();
-
         bool Authenticate(const string& username, const string& password);
+        bool Dispose();
 
         // Async part
         future<void> AsyncConnect(const string& server, int port);
@@ -52,13 +50,11 @@ namespace ISXSC
 
         string m_username;
         string m_password;
-        
 
+        // Strand part
         bool SendEhloCmd();
         bool SendStartTlsCmd();
-
         bool UpgradeSecurity();
-
         bool SendMailFromCmd();
         bool SendRcptToCmd();
         bool SendDataCmd();

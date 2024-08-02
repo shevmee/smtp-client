@@ -17,6 +17,7 @@ namespace ISXSC
         Dispose();
     };
 
+    // Strand part
     bool SmtpClient::Connect(const string& server, int port)
     {
         m_smart_socket.Connect(server, port);
@@ -88,10 +89,10 @@ namespace ISXSC
                         m_smart_socket.AsyncConnectCoroutine(server, port, yield);
                         std::cout << m_smart_socket.AsyncReadCoroutine(yield);
                     
-                        SendEhloCmd();
+                        AsyncSendEhloCmd(yield);
                         std::cout << m_smart_socket.AsyncReadCoroutine(yield);
                     
-                        SendStartTlsCmd();
+                        AsyncSendStartTlsCmd(yield);
                         std::cout << m_smart_socket.AsyncReadCoroutine(yield);
                     
                         AsyncUpgradeSecurity(yield);
@@ -143,6 +144,7 @@ namespace ISXSC
         return future;
     };
 
+    // Strand part
     bool SmtpClient::SendEhloCmd()
     {
         string query = (format("%1% %2%:%3% \r\n")

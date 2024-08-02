@@ -20,12 +20,10 @@ namespace ISXSmartSocket
     class SmartSocket
     {
     public:
-        SmartSocket(
-            asio::io_context& io_context
-            , asio::ssl::context& ssl_context);
-
+        SmartSocket(asio::io_context& io_context, asio::ssl::context& ssl_context);
         ~SmartSocket();
 
+        // Strand part
         bool Connect(const string& server, int port);
         
         bool Write(const string& data);
@@ -61,6 +59,6 @@ namespace ISXSmartSocket
         asio::ssl::context& m_ssl_context;
         asio::ssl::stream<tcp::socket> m_socket;
 
-        string& FormatServerOutput(string raw_output);
+        string FormatServerOutput(string raw_output);
     };
 }; // namespace ISXSmartSocket

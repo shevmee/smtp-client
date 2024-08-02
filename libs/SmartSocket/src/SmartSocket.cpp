@@ -20,6 +20,7 @@ namespace ISXSmartSocket
         Close();
     };
 
+    // Strand part
     bool SmartSocket::Connect(const string& server, int port)
     {
         m_server = server;
@@ -180,14 +181,12 @@ namespace ISXSmartSocket
         return m_socket.next_layer().remote_endpoint().port();
     };
 
-    string& SmartSocket::FormatServerOutput(string raw_output)
+    string SmartSocket::FormatServerOutput(string raw_output)
     {
         // Formatting response, so that each line received from server starts with "S: "
         raw_output = std::regex_replace(raw_output, std::regex("\n"), "\nS: ");
         raw_output.erase(raw_output.end() - 3, raw_output.end());
-    
-        string& processed = raw_output;
-        return processed;
+        return raw_output;
     };
 
     boost::asio::io_context& SmartSocket::GetIoContext()
