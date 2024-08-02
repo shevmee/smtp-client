@@ -42,7 +42,7 @@ namespace ISXSC
 
         bool Authenticate(const string& username, const string& password);
 
-        //Async
+        // Async part
         future<void> AsyncConnect(const string& server, int port);
         future<void> AsyncAuthenticate(const string& username, const string& password);
 
@@ -64,9 +64,9 @@ namespace ISXSC
         bool SendDataCmd();
         bool SendQuitCmd();
 
-        
-        // Async
+        // Async part
         bool AsyncSendEhloCmd(asio::yield_context& yield);
         bool AsyncSendStartTlsCmd(asio::yield_context& yield);
+        bool AsyncUpgradeSecurity(asio::yield_context& yield);
     };
 }; // namespace ISXSC

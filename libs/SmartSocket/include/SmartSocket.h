@@ -48,6 +48,7 @@ namespace ISXSmartSocket
         bool AsyncConnectCoroutine(const string& server, int port, asio::yield_context& yield);
         bool AsyncWriteCoroutine(const string& data, asio::yield_context& yield);
         string AsyncReadCoroutine(asio::yield_context& yield, bool raw_output = false);
+        bool AsyncUpgradeSecurityCoroutine(asio::yield_context& yield);
 
     private:
         string m_server;

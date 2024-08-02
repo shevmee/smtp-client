@@ -29,7 +29,7 @@ namespace ISXSmartSocket
 
         tcp::resolver::query query(m_server, std::to_string(m_port));
         tcp::resolver::results_type results = m_resolver.resolve(query);
-        asio::connect(m_socket.next_layer(), results.begin(), results.end(), ec);
+        asio::connect(m_socket.next_layer(), results, ec);
         
         if (!ec)
         {
@@ -184,9 +184,7 @@ namespace ISXSmartSocket
     {
         // Formatting response, so that each line received from server starts with "S: "
         raw_output = std::regex_replace(raw_output, std::regex("\n"), "\nS: ");
-        raw_output.erase(--raw_output.end());
-        raw_output.erase(--raw_output.end());
-        raw_output.erase(--raw_output.end());
+        raw_output.erase(raw_output.end() - 3, raw_output.end());
     
         string& processed = raw_output;
         return processed;
@@ -222,6 +220,7 @@ namespace ISXSmartSocket
     bool SmartSocket::AsyncWriteCoroutine(const string& data, asio::yield_context& yield)
     {
         system::error_code ec;
+        
         if (!m_ssl_enabled)
         {
             asio::async_write(m_socket.next_layer(), asio::buffer(data), yield[ec]);
@@ -244,6 +243,7 @@ namespace ISXSmartSocket
     {
         asio::streambuf buffer;
         system::error_code ec;
+
         if (!m_ssl_enabled)
         {
             asio::async_read_until(m_socket.next_layer(), buffer, "\r\n", yield[ec]);   
@@ -272,5 +272,21 @@ namespace ISXSmartSocket
 
         std::cerr << "Error receiving: " << ec.message() << std::endl;
         return string();
+    };
+
+    bool SmartSocket::AsyncUpgradeSecurityCoroutine(asio::yield_context& yield)
+    {
+        system::error_code ec;
+        m_socket.async_handshake(boost::asio::ssl::stream_base::handshake_type::client, yield[ec]);
+    
+        if (!ec)
+        {
+            std::cout << "C: Handshake successful. Connection upgraded to TLS" << std::endl;
+            m_ssl_enabled = true;
+            return true;
+        };
+        
+        std::cerr << "Error during handshake: " << ec.message() << std::endl;
+        return false;
     };
 }; // namespace ISXSmartSocket
