@@ -63,5 +63,8 @@ namespace ISXSC
         bool SendRcptToCmd();
         bool SendDataCmd();
         bool SendQuitCmd();
+
+        // Async part
+        bool AsyncUpgradeSecurity(asio::yield_context& yield);
     };
 }; // namespace ISXSC
