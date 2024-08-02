@@ -184,9 +184,7 @@ namespace ISXSmartSocket
     {
         // Formatting response, so that each line received from server starts with "S: "
         raw_output = std::regex_replace(raw_output, std::regex("\n"), "\nS: ");
-        raw_output.erase(--raw_output.end());
-        raw_output.erase(--raw_output.end());
-        raw_output.erase(--raw_output.end());
+        raw_output.erase(raw_output.end() - 3, raw_output.end());
     
         string& processed = raw_output;
         return processed;
