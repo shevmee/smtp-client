@@ -37,11 +37,14 @@ namespace ISXSC
         ~SmtpClient();
 
         bool Connect(const string& server, int port);
-        future<void> AsyncConnect(const string& server, int port);
 
         bool Dispose();
 
         bool Authenticate(const string& username, const string& password);
+
+        //Async
+        future<void> AsyncConnect(const string& server, int port);
+        future<void> AsyncAuthenticate(const string& username, const string& password);
 
     private:
 
@@ -60,5 +63,9 @@ namespace ISXSC
         bool SendRcptToCmd();
         bool SendDataCmd();
         bool SendQuitCmd();
+
+        
+        // Async
+        bool AsyncSendEhloCmd(asio::yield_context& yield);
     };
 }; // namespace ISXSC
