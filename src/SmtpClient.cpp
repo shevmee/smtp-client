@@ -48,21 +48,24 @@ namespace ISXSC
             , [this, server, port, promise = std::move(promise), &ec]()
             mutable
             {
-                asio::spawn(m_smart_socket.GetIoContext(), [this, server, port, promise = std::move(promise)](asio::yield_context yield)
-                mutable
-                {
-                    m_smart_socket.AsyncConnectCoroutine(server, port, yield);
-                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-                
-                    SendEhloCmd();
-                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-                
-                    SendStartTlsCmd();
-                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-                
-                    UpgradeSecurity();
-                    promise.set_value();
-                });
+                asio::spawn(
+                    m_smart_socket.GetIoContext()
+                    , [this, server, port, promise = std::move(promise)](asio::yield_context yield)
+                    mutable
+                    {
+                        m_smart_socket.AsyncConnectCoroutine(server, port, yield);
+                        std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                    
+                        SendEhloCmd();
+                        std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                    
+                        SendStartTlsCmd();
+                        std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                    
+                        UpgradeSecurity();
+                        promise.set_value();
+                    }
+                );
             }
         );
         
