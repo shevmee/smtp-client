@@ -3,56 +3,15 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#include <fstream>
 #include <iostream>
 
-#include <boost/beast/core/detail/base64.hpp>
 #include "MailMessage.h"
 #include "MailAddress.h"
 #include "MailAttachment.h"
 
-std::string Base64Encode(const std::string& decoded) {
-    auto encoded_size = boost::beast::detail::base64::encoded_size(decoded.size());
-    std::string encoded_output(encoded_size, '\0');
-    boost::beast::detail::base64::encode(encoded_output.data(), decoded.data(), decoded.size());
 
-    for (size_t i = 500; i < encoded_output.size(); i += 502) {
-        encoded_output.insert(i, "\r\n");
-    }
-
-    return encoded_output;
-}
-
-std::string ReadFile(const std::string& filename)
-{
-    std::ifstream t(filename);
-    std::string str;
-
-    t.seekg(0, std::ios::end);   
-    uint32_t size = t.tellg();
-    t.seekg(0, std::ios::beg);
-
-    if (size > ISXSC::MailAttachment::S_MAX_SIZE) {
-        throw std::runtime_error("File is too big");
-    }
-
-    str.reserve(size);
-
-    str.assign((std::istreambuf_iterator<char >(t)),
-    std::istreambuf_iterator<char>());
-    return str;
-}
 
 namespace ISXSC {
-
-    std::string MailMessageFormatter::MailFormat(const MailMessage& message) {
-        std::ostringstream formatted_message;
-        formatted_message << MailHeaders(message)
-                          << MailBody(message)
-                          << MailAttachments(message.attachments);
-
-        return formatted_message.str();
-    }
 
     std::string MailMessageFormatter::MailFrom(const MailAddress& from) {
         return "From: " + from.get_name() + " <" + from.get_address() + ">\r\n";
@@ -117,21 +76,14 @@ namespace ISXSC {
         return body.str();
     }
 
-    std::string MailMessageFormatter::MailAttachments(const std::vector<MailAttachment>& attachments) {
-        if (attachments.empty()) {
-            return "";
-        }
+    std::string MailMessageFormatter::MailAttachmentHeaders(const MailAttachment& attachment, const std::string& filetype) {
 
         std::ostringstream formatted_attachments;
-        for (const auto& attachment : attachments) {
-            formatted_attachments << "--boundary\r\n"
-                                  << "Content-Type: application/octet-stream; name=\"" + attachment.get_name() + "\"\r\n"
+        formatted_attachments << "--boundary\r\n"
+                                  << "Content-Type: " << filetype << "; name=\"" + attachment.get_name() + "\"\r\n"
                                   << "Content-Transfer-Encoding: base64\r\n"
-                                  << "Content-Disposition: attachment; filename=\"" + attachment.get_name() + "\"\r\n\r\n"
-                                  << Base64Encode(ReadFile(attachment.get_path())) + "\r\n";
-        }
+                                  << "Content-Disposition: attachment; filename=\"" + attachment.get_name() + "\"\r\n\r\n";
 
-        formatted_attachments << "--boundary--\r\n";
         return formatted_attachments.str();
     }
 }
