@@ -62,7 +62,7 @@ namespace ISXSC
                         SendStartTlsCmd();
                         std::cout << m_smart_socket.AsyncReadCoroutine(yield);
                     
-                        UpgradeSecurity();
+                        AsyncUpgradeSecurity(yield);
                         promise.set_value();
                     }
                 );
@@ -123,5 +123,11 @@ namespace ISXSC
     bool SmtpClient::UpgradeSecurity()
     {
         return m_smart_socket.UpgradeSecurity();
+    };
+
+    // Async part
+    bool SmtpClient::AsyncUpgradeSecurity(asio::yield_context& yield)
+    {
+        return m_smart_socket.AsyncUpgradeSecurityCoroutine(yield);
     };
 }; // namespace ISXSC
