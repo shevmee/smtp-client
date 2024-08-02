@@ -38,10 +38,30 @@ target_include_directories(TestsMailAttachment PRIVATE
 
 target_link_libraries(TestsMailAttachment gtest_main)
 
+
+add_executable(
+    TestsMailMessageFormatter
+    TestsMailMessageFormatter.cpp
+    ../src/MailMessageFormatter.cpp
+    ../src/MailMessageBuilder.cpp
+    ../src/MailAttachment.cpp
+    ../src/MailAddress.cpp
+)
+
+target_include_directories(TestsMailMessageFormatter PRIVATE
+    ${CMAKE_SOURCE_DIR}/headers
+)
+
+target_link_libraries(TestsMailMessageFormatter gtest_main)
+
+
+
+
 add_custom_target(
     runTests
     COMMAND TestsMailMessageBuilder
     COMMAND TestsMailAttachment
+    COMMAND TestsMailMessageFormatter
     DEPENDS TestsMailMessageBuilder TestsMailAttachment
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Running tests"

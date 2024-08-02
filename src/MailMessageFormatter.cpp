@@ -14,6 +14,9 @@
 namespace ISXSC {
 
     std::string MailMessageFormatter::MailFrom(const MailAddress& from) {
+        if (from.get_name().empty()) {
+            return "From: " + from.get_address() + "\r\n";
+        }
         return "From: " + from.get_name() + " <" + from.get_address() + ">\r\n";
     }
 
@@ -21,7 +24,13 @@ namespace ISXSC {
         std::ostringstream to_stream;
         to_stream << "To: ";
         for (const auto& address : to) {
-            to_stream << address.get_name() << " <" << address.get_address() << ">, ";
+            if (address.get_name().empty()) {
+                to_stream << address.get_address() << ", ";
+            }
+            else
+            {
+                to_stream << address.get_name() << " <" << address.get_address() << ">, ";
+            }
         }
         std::string to_string = to_stream.str();
         to_string.erase(to_string.length() - 2, 2);
@@ -36,9 +45,16 @@ namespace ISXSC {
         }
 
         std::ostringstream cc_stream;
-        cc_stream << "CC: ";
+        cc_stream << "Cc: ";
         for (const auto& address : cc) {
-            cc_stream << address.get_address() << " <" << address.get_name() << ">, ";
+            if (address.get_name().empty()) 
+            {
+                cc_stream << address.get_address() << ", ";
+            }
+            else
+            {
+                cc_stream << address.get_name() << " <" << address.get_address() << ">, ";
+            }
         }
         std::string cc_string = cc_stream.str();
         cc_string.erase(cc_string.length() - 2, 2);
@@ -79,8 +95,7 @@ namespace ISXSC {
     std::string MailMessageFormatter::MailAttachmentHeaders(const MailAttachment& attachment, const std::string& filetype) {
 
         std::ostringstream formatted_attachments;
-        formatted_attachments << "--boundary\r\n"
-                                  << "Content-Type: " << filetype << "; name=\"" + attachment.get_name() + "\"\r\n"
+        formatted_attachments  << "Content-Type: " << filetype << "; name=\"" + attachment.get_name() + "\"\r\n"
                                   << "Content-Transfer-Encoding: base64\r\n"
                                   << "Content-Disposition: attachment; filename=\"" + attachment.get_name() + "\"\r\n\r\n";
 
