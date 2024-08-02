@@ -36,39 +36,6 @@ namespace ISXSC
         return UpgradeSecurity();
     };
 
-    future<void> SmtpClient::AsyncConnect(const string& server, int port)
-    {
-        std::promise<void> promise;
-        future<void> future = promise.get_future();
-
-        system::error_code ec;
-        
-        asio::post(
-            m_smart_socket.GetIoContext()
-            , [this, server, port, promise = std::move(promise), &ec]()
-            mutable
-            {
-                asio::spawn(m_smart_socket.GetIoContext(), [this, server, port, promise = std::move(promise)](asio::yield_context yield)
-                mutable
-                {
-                    m_smart_socket.AsyncConnectCoroutine(server, port, yield);
-                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-                
-                    SendEhloCmd();
-                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-                
-                    SendStartTlsCmd();
-                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-                
-                    UpgradeSecurity();
-                    promise.set_value();
-                });
-            }
-        );
-        
-        return future;
-    };
-
     bool SmtpClient::Dispose()
     {
         return m_smart_socket.Close();
@@ -100,6 +67,77 @@ namespace ISXSC
         
         std::cerr << "Error authenticating: " << response << std::endl;
         return false;
+    };
+
+    // Async part
+    future<void> SmtpClient::AsyncConnect(const string& server, int port)
+    {
+        std::promise<void> promise;
+        future<void> future = promise.get_future();
+        
+        asio::post(
+            m_smart_socket.GetIoContext()
+            , [this, server, port, promise = std::move(promise)]()
+            mutable
+            {
+                asio::spawn(m_smart_socket.GetIoContext(), [this, server, port, promise = std::move(promise)](asio::yield_context yield)
+                mutable
+                {
+                    m_smart_socket.AsyncConnectCoroutine(server, port, yield);
+                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                
+                    SendEhloCmd();
+                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                
+                    SendStartTlsCmd();
+                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                
+                    UpgradeSecurity();
+                    promise.set_value();
+                });
+            }
+        );
+        
+        return future;
+    };
+
+    future<void> SmtpClient::AsyncAuthenticate(const string& username, const string& password)
+    {
+        std::promise<void> promise;
+        future<void> future = promise.get_future();
+
+        m_username = username;
+        m_password = password;
+        std::string auth_string = '\0' + username + '\0' + password;
+        std::string encoded_auth_string = ISXBase64::Base64Encode(auth_string);
+
+        // Forming query
+        std::string query = (format("%1% %2% \r\n")
+            % S_CMD_AUTH_PLAIN
+            % encoded_auth_string).str();
+
+        asio::post(
+            m_smart_socket.GetIoContext()
+            , [this, username, password, query, promise = std::move(promise)]()
+            mutable
+            {
+                asio::spawn(
+                    m_smart_socket.GetIoContext()
+                    , [this, username, password, query, promise = std::move(promise)](asio::yield_context yield)
+                    mutable
+                    {                        
+                        // Sending authentication query
+                        m_smart_socket.AsyncWriteCoroutine(query, yield);
+
+                        // Formatting response, so that line received from server starts with "S: "
+                        std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                        promise.set_value();
+                    }
+                );
+            }
+        );
+
+        return future;
     };
 
     bool SmtpClient::SendEhloCmd()
