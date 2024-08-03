@@ -1,4 +1,5 @@
 #include "SmartSocket.h"
+#include "Handlers.h"
 
 #include <iostream>
 
@@ -15,7 +16,6 @@ namespace ISXSmartSocket
 
     SmartSocket::~SmartSocket()
     {
-        Shutdown();
         Close();
     };
 
@@ -31,14 +31,7 @@ namespace ISXSmartSocket
         tcp::resolver::results_type results = m_resolver.resolve(query);
         asio::connect(m_socket.next_layer(), results, ec);
         
-        if (!ec)
-        {
-            std::cout << "C: Connected to " << GetServername() << ":" << GetServerPort() << std::endl;
-            return true;
-        };
-
-        std::cout << "Error: " << ec.message() << std::endl;
-        return false;
+        return ISXLOGS::SmartSocketMethodsHandlers::HandleConnection(GetServername(), GetServerPort(), ec);
     };
 
     bool SmartSocket::Write(const string& data)
@@ -52,14 +45,7 @@ namespace ISXSmartSocket
             asio::write(m_socket, asio::buffer(data), ec);
         };
 
-        if (!ec)
-        {
-            std::cout << "C: " << data;
-            return true;
-        };
-        
-        std::cerr << "Error sending: " << ec.message() << std::endl;
-        return false;
+        return ISXLOGS::SmartSocketMethodsHandlers::HandleWrite(data, ec);
     };
 
     string SmartSocket::Read(bool raw_output)
@@ -76,67 +62,21 @@ namespace ISXSmartSocket
             int bytes = asio::read_until(m_socket, buffer, "\r\n", ec);
         };
 
-        if (!ec)
-        {
-            std::stringstream response;
-            response << "S: ";
-            std::copy(
-                asio::buffers_begin(buffer.data()),
-                asio::buffers_end(buffer.data()),
-                std::ostream_iterator<char>(response)
-            );
-
-            if (raw_output)
-            {
-                return response.str();
-            };
-
-            return FormatServerOutput(response.str());
-        };
-
-        std::cerr << "Error receiving: " << ec.message() << std::endl;
-        return string();
+        return ISXLOGS::SmartSocketMethodsHandlers::HandleRead(buffer, ec);
     }
-
-    bool SmartSocket::Shutdown()
-    {
-        system::error_code ec;
-    
-        if (IsOpen())
-        {
-            if (!m_ssl_enabled)
-            {
-                m_socket.next_layer().shutdown(tcp::socket::shutdown_both, ec);
-            } else
-            {
-                m_socket.shutdown(ec);
-            };
-        } else
-        {
-            return true;
-        }
-    
-        if (!ec)
-        {
-            return true;
-        };
-    
-        std::cerr << "Error shutdown: " << ec.message() << std::endl;
-        return false;
-    };
 
     bool SmartSocket::Close()
     {
         system::error_code ec;
-        m_socket.next_layer().close(ec);
-
-        if (!ec)
+        if (IsOpen())
+        {
+            m_socket.next_layer().close(ec);
+        } else
         {
             return true;
         };
 
-        std::cerr << "Error closing: " << ec.message() << std::endl;
-        return false;
+        return ISXLOGS::SmartSocketMethodsHandlers::HandleClose(ec);
     };
 
     bool SmartSocket::UpgradeSecurity()
@@ -144,15 +84,7 @@ namespace ISXSmartSocket
         system::error_code ec;
         m_socket.handshake(boost::asio::ssl::stream_base::handshake_type::client, ec);
     
-        if (!ec)
-        {
-            std::cout << "C: Handshake successful. Connection upgraded to TLS" << std::endl;
-            m_ssl_enabled = true;
-            return true;
-        };
-        
-        std::cerr << "Error during handshake: " << ec.message() << std::endl;
-        return false;
+        return ISXLOGS::SmartSocketMethodsHandlers::HandleUpgradeSecurity(ec, &m_ssl_enabled);
     };
 
     bool SmartSocket::IsOpen() const
@@ -180,14 +112,6 @@ namespace ISXSmartSocket
         return m_socket.next_layer().remote_endpoint().port();
     };
 
-    string SmartSocket::FormatServerOutput(string raw_output)
-    {
-        // Formatting response, so that each line received from server starts with "S: "
-        raw_output = std::regex_replace(raw_output, std::regex("\n"), "\nS: ");
-        raw_output.erase(raw_output.end() - 3, raw_output.end());
-        return raw_output;
-    };
-
     boost::asio::io_context& SmartSocket::GetIoContext()
     {
         return m_io_context;
@@ -205,14 +129,7 @@ namespace ISXSmartSocket
         tcp::resolver::results_type results = m_resolver.async_resolve(query, yield[ec]);
         asio::async_connect(m_socket.next_layer(), results.begin(), results.end(), yield[ec]);
         
-        if (!ec)
-        {
-            std::cout << "Connected to " << GetServername() << ":" << GetServerPort() << std::endl;
-            return true;
-        };
-
-        std::cout << "Error: " << ec.message() << std::endl;
-        return false;
+        return ISXLOGS::SmartSocketMethodsHandlers::HandleConnection(GetServername(), GetServerPort(), ec);
     };
 
     bool SmartSocket::AsyncWriteCoroutine(const string& data, asio::yield_context& yield)
@@ -227,14 +144,7 @@ namespace ISXSmartSocket
             asio::async_write(m_socket, asio::buffer(data), yield[ec]);
         };
 
-        if (!ec)
-        {
-            std::cout << "C: " << data;
-            return true;
-        };
-        
-        std::cerr << "Error sending: " << ec.message() << std::endl;
-        return false;
+        return ISXLOGS::SmartSocketMethodsHandlers::HandleWrite(data, ec);
     };
 
     string SmartSocket::AsyncReadCoroutine(asio::yield_context& yield, bool raw_output)
@@ -250,26 +160,7 @@ namespace ISXSmartSocket
             asio::async_read_until(m_socket, buffer, "\r\n", yield[ec]);   
         };
 
-        if (!ec)
-        {
-            std::stringstream response;
-            response << "S: ";
-            std::copy(
-                asio::buffers_begin(buffer.data()),
-                asio::buffers_end(buffer.data()),
-                std::ostream_iterator<char>(response)
-            );
-
-            if (raw_output)
-            {
-                return response.str();
-            };
-
-            return FormatServerOutput(response.str());
-        };
-
-        std::cerr << "Error receiving: " << ec.message() << std::endl;
-        return string();
+        return ISXLOGS::SmartSocketMethodsHandlers::HandleRead(buffer, ec);
     };
 
     bool SmartSocket::AsyncUpgradeSecurityCoroutine(asio::yield_context& yield)
@@ -277,14 +168,6 @@ namespace ISXSmartSocket
         system::error_code ec;
         m_socket.async_handshake(boost::asio::ssl::stream_base::handshake_type::client, yield[ec]);
     
-        if (!ec)
-        {
-            std::cout << "C: Handshake successful. Connection upgraded to TLS" << std::endl;
-            m_ssl_enabled = true;
-            return true;
-        };
-        
-        std::cerr << "Error during handshake: " << ec.message() << std::endl;
-        return false;
+        return ISXLOGS::SmartSocketMethodsHandlers::HandleUpgradeSecurity(ec, &m_ssl_enabled);
     };
 }; // namespace ISXSmartSocket

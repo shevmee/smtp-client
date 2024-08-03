@@ -29,7 +29,6 @@ namespace ISXSmartSocket
         bool Write(const string& data);
         string Read(bool raw_output = false);
         
-        bool Shutdown();
         bool Close();
 
         bool UpgradeSecurity();
@@ -58,7 +57,5 @@ namespace ISXSmartSocket
         asio::io_context& m_io_context;
         asio::ssl::context& m_ssl_context;
         asio::ssl::stream<tcp::socket> m_socket;
-
-        string FormatServerOutput(string raw_output);
     };
 }; // namespace ISXSmartSocket

@@ -22,12 +22,10 @@ int main()
         io_context.run();
     });
 
-    // Create two instances of SmtpClient
     ISXSC::SmtpClient smtp_client(io_context, ssl_context);
-    ISXSC::SmtpClient smtp_client2(io_context, ssl_context);
 
     // Example of async connect to smtp server
-    future<void> connection = smtp_client.AsyncConnect("localhost", 2525);
+    future<void> connection = smtp_client.AsyncConnect("smtp.gmail.com", 587);
 
     try
     {
@@ -36,6 +34,8 @@ int main()
     {
         std::cerr << "Error: " << e.what() << std::endl;
     }
+
+    smtp_client.AsyncAuthenticate("username", "password").get();
 
     // Stop the io_context to finish processing
     io_context.stop();
