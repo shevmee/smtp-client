@@ -7,6 +7,7 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/format.hpp>
 #include <boost/asio/spawn.hpp>
+#include <boost/asio/steady_timer.hpp>
 
 #include <iostream>
 #include <string>
@@ -32,6 +33,8 @@ namespace ISXSC
         inline static const string S_CMD_DATA = "DATA";
         inline static const string S_CMD_QUIT = "QUIT";
 
+        inline static const int S_DEFAULT_TIMEOUT = 5;
+
         SmtpClient(asio::io_context& io_context, asio::ssl::context& ssl_context);
         ~SmtpClient();
 
@@ -51,6 +54,8 @@ namespace ISXSC
         string m_username;
         string m_password;
 
+        int m_timeout;
+
         // Strand part
         bool SendEhloCmd();
         bool SendStartTlsCmd();
@@ -64,5 +69,8 @@ namespace ISXSC
         bool AsyncSendEhloCmd(asio::yield_context& yield);
         bool AsyncSendStartTlsCmd(asio::yield_context& yield);
         bool AsyncUpgradeSecurity(asio::yield_context& yield);
+
+        // Timeout timer
+        void SetTimeot(asio::steady_timer& timer, int seconds, std::promise<void>* promise);
     };
 }; // namespace ISXSC

@@ -1,7 +1,6 @@
 #include "SmartSocket.h"
 
 #include <iostream>
-#include <boost/asio/spawn.hpp>
 
 namespace ISXSmartSocket
 {

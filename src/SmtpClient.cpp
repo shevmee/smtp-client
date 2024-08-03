@@ -1,16 +1,12 @@
 #include "SmtpClient.h"
-#include "SmartSocket.h"
-
-using boost::asio::ip::tcp;
-using std::string;
-using namespace boost;
 
 namespace ISXSC
 {
     SmtpClient::SmtpClient(
         asio::io_context& io_context
         , asio::ssl::context& ssl_context):
-        m_smart_socket(io_context, ssl_context) {};
+        m_smart_socket(io_context, ssl_context)
+        , m_timeout(S_DEFAULT_TIMEOUT) {};
 
     SmtpClient::~SmtpClient()
     {
@@ -21,7 +17,7 @@ namespace ISXSC
     bool SmtpClient::Connect(const string& server, int port)
     {
         m_smart_socket.Connect(server, port);
-        
+
         std::cout << m_smart_socket.Read();
         if (!m_smart_socket.IsOpen())
         {
@@ -54,10 +50,8 @@ namespace ISXSC
             % S_CMD_AUTH_PLAIN
             % encoded_auth_string).str();
         
-        // Sending authentication query
         m_smart_socket.Write(query);
 
-        // Formatting response, so that line received from server starts with "S: "
         string response = m_smart_socket.Read();
         std::cout << response;
 
@@ -75,30 +69,28 @@ namespace ISXSC
     {
         std::promise<void> promise;
         future<void> future = promise.get_future();
-        
-        asio::post(
+
+        asio::spawn(
             m_smart_socket.GetIoContext()
-            , [this, server, port, promise = std::move(promise)]()
+            , [this, server, port, promise = std::move(promise)](asio::yield_context yield)
             mutable
             {
-                asio::spawn(
-                    m_smart_socket.GetIoContext()
-                    , [this, server, port, promise = std::move(promise)](asio::yield_context yield)
-                    mutable
-                    {
-                        m_smart_socket.AsyncConnectCoroutine(server, port, yield);
-                        std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-                    
-                        AsyncSendEhloCmd(yield);
-                        std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-                    
-                        AsyncSendStartTlsCmd(yield);
-                        std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-                    
-                        AsyncUpgradeSecurity(yield);
-                        promise.set_value();
-                    }
-                );
+                asio::steady_timer timer(m_smart_socket.GetIoContext());
+                SetTimeot(timer, m_timeout, &promise);
+
+                m_smart_socket.AsyncConnectCoroutine(server, port, yield);
+                std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+            
+                AsyncSendEhloCmd(yield);
+                std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+            
+                AsyncSendStartTlsCmd(yield);
+                std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+            
+                AsyncUpgradeSecurity(yield);
+
+                timer.cancel();
+                promise.set_value();
             }
         );
         
@@ -115,29 +107,23 @@ namespace ISXSC
         std::string auth_string = '\0' + username + '\0' + password;
         std::string encoded_auth_string = ISXBase64::Base64Encode(auth_string);
 
-        // Forming query
         std::string query = (format("%1% %2% \r\n")
             % S_CMD_AUTH_PLAIN
             % encoded_auth_string).str();
 
-        asio::post(
+        asio::spawn(
             m_smart_socket.GetIoContext()
-            , [this, username, password, query, promise = std::move(promise)]()
+            , [this, username, password, query, promise = std::move(promise)](asio::yield_context yield)
             mutable
             {
-                asio::spawn(
-                    m_smart_socket.GetIoContext()
-                    , [this, username, password, query, promise = std::move(promise)](asio::yield_context yield)
-                    mutable
-                    {                        
-                        // Sending authentication query
-                        m_smart_socket.AsyncWriteCoroutine(query, yield);
+                asio::steady_timer timer(m_smart_socket.GetIoContext());
+                SetTimeot(timer, m_timeout, &promise);
 
-                        // Formatting response, so that line received from server starts with "S: "
-                        std::cout << m_smart_socket.AsyncReadCoroutine(yield);
-                        promise.set_value();
-                    }
-                );
+                m_smart_socket.AsyncWriteCoroutine(query, yield);
+                std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+
+                timer.cancel();
+                promise.set_value();
             }
         );
 
@@ -184,5 +170,22 @@ namespace ISXSC
     bool SmtpClient::AsyncUpgradeSecurity(asio::yield_context& yield)
     {
         return m_smart_socket.AsyncUpgradeSecurityCoroutine(yield);
+    };
+
+    // Timeout timer
+    void SmtpClient::SetTimeot(asio::steady_timer& timer, int seconds, std::promise<void>* promise)
+    {
+        timer.expires_from_now(std::chrono::seconds(seconds));
+        timer.async_wait(
+            [promise](const boost::system::error_code& ec)
+            {
+                if (ec)
+                {
+                    return;
+                };
+
+                promise->set_exception(std::make_exception_ptr(std::runtime_error("Timeout waiting for response occurred")));
+            }
+        );
     };
 }; // namespace ISXSC

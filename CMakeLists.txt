@@ -9,7 +9,6 @@ find_package(OpenSSL REQUIRED)
 
 # Find Boost package with all requirements
 find_package(Boost 1.70 REQUIRED COMPONENTS system coroutine)
-include_directories(${Boost_INCLUDE_DIRS})
 
 # Add executable target
 add_executable(client)
@@ -23,6 +22,7 @@ target_sources(client PRIVATE
 # Include directories for the client target
 target_include_directories(client PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/headers
+    ${Boost_INCLUDE_DIRS}
 )
 
 # Add subdirectory for the SmartSocket library
