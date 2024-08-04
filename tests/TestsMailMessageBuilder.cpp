@@ -93,8 +93,3 @@ TEST(MailMessageBuilderTest, BuildThrowsIfToNotSet) {
     
     EXPECT_THROW(builder.Build(), std::runtime_error);
 }
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

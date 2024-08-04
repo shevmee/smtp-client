@@ -11,36 +11,19 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-add_executable(
-    TestsMailMessageBuilder
+SET(TestsMailMessageBuilderSource 
     TestsMailMessageBuilder.cpp
     ../src/MailMessageBuilder.cpp
     ../src/MailAttachment.cpp
     ../src/MailAddress.cpp
 )
 
-target_include_directories(TestsMailMessageBuilder PRIVATE
-    ${CMAKE_SOURCE_DIR}/headers
-)
-
-target_link_libraries(TestsMailMessageBuilder gtest_main)
-
-
-add_executable(
-    TestsMailAttachment
+SET(TestsMailAttachmentSource 
     TestsMailAttachment.cpp
     ../src/MailAttachment.cpp
 )
 
-target_include_directories(TestsMailAttachment PRIVATE
-    ${CMAKE_SOURCE_DIR}/headers
-)
-
-target_link_libraries(TestsMailAttachment gtest_main)
-
-
-add_executable(
-    TestsMailMessageFormatter
+SET(TestsMailMessageFormatterSource 
     TestsMailMessageFormatter.cpp
     ../src/MailMessageFormatter.cpp
     ../src/MailMessageBuilder.cpp
@@ -48,21 +31,21 @@ add_executable(
     ../src/MailAddress.cpp
 )
 
-target_include_directories(TestsMailMessageFormatter PRIVATE
+
+add_executable(TestsMain 
+    TestsMain.cpp
+    ${TestsMailMessageBuilderSource}
+    ${TestsMailAttachmentSource}
+    ${TestsMailMessageFormatterSource}
+)
+
+target_include_directories(TestsMain PRIVATE 
     ${CMAKE_SOURCE_DIR}/headers
 )
 
-target_link_libraries(TestsMailMessageFormatter gtest_main)
-
-
-
-
-add_custom_target(
-    runTests
-    COMMAND TestsMailMessageBuilder
-    COMMAND TestsMailAttachment
-    COMMAND TestsMailMessageFormatter
-    DEPENDS TestsMailMessageBuilder TestsMailAttachment
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Running tests"
+target_link_libraries(TestsMain 
+    GTest::gtest_main
 )
+
+include(GoogleTest)
+gtest_discover_tests(TestsMain)
