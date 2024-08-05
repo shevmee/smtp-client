@@ -11,7 +11,7 @@
 
 
 
-namespace ISXSC {
+namespace ISXMM {
 
     std::string MailMessageFormatter::MailFrom(const MailAddress& from) {
         if (from.get_name().empty()) {

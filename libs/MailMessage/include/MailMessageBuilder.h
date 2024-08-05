@@ -8,7 +8,7 @@
 #include "MailMessage.h"
 #include "MailAttachment.h"
 
-namespace ISXSC
+namespace ISXMM
 {
     class MailMessageBuilder
     {

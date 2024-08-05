@@ -5,7 +5,7 @@
 #include "MailAddress.h"
 #include "MailAttachment.h"
 
-namespace ISXSC
+namespace ISXMM
 {
     struct MailMessage
     {

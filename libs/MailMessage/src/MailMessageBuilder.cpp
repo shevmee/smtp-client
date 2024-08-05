@@ -4,7 +4,7 @@
 #include "MailMessage.h"
 #include "MailAttachment.h"
 
-namespace ISXSC
+namespace ISXMM
 {
     MailMessageBuilder& MailMessageBuilder::SetFrom(const std::string& email, const std::string& name)
     {

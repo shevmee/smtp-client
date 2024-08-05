@@ -4,7 +4,7 @@
 #include <string>
 #include <streambuf>
 
-namespace ISXSC
+namespace ISXMM
 {
     MailAttachment::MailAttachment(const std::filesystem::path& path): m_path(path){}
 
