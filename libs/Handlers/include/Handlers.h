@@ -34,7 +34,9 @@ namespace ISXLOGS
         SmartSocketMethodsHandlers() = delete;
         ~SmartSocketMethodsHandlers() = delete;
         
-        static inline void HandleError(const boost::system::error_code& error_code);
+        static inline void HandleError(
+            const string& prefix = "ERR", const boost::system::error_code& error_code);
+
         static string FormatServerOutput(string raw_output);
         static inline std::ostream* s_log_stream = &std::clog;
     };

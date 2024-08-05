@@ -4,9 +4,10 @@
 
 namespace ISXLOGS
 {
-    void SmartSocketMethodsHandlers::HandleError(const boost::system::error_code& error_code)
+    void SmartSocketMethodsHandlers::HandleError(
+        const string& prefix, const boost::system::error_code& error_code)
     {
-        *s_log_stream << error_code.message() << std::endl;
+        *s_log_stream << prefix << ": " << error_code.message() << std::endl;
         throw std::runtime_error(error_code.message());
     };
 
@@ -24,11 +25,11 @@ namespace ISXLOGS
     {
         if (!error_code)
         {
-            *s_log_stream << "Successfully connected to " << server << ":" << port << std::endl;
+            *s_log_stream << "LOG: " << "Successfully connected to " << server << ":" << port << std::endl;
             return true;
         }
 
-        HandleError(error_code);
+        HandleError("Connection error", error_code);
         return false;
     };
 
@@ -42,7 +43,7 @@ namespace ISXLOGS
             return true;
         }
 
-        HandleError(error_code);
+        HandleError("Write error: ", error_code);
         return false;
     };
 
@@ -63,11 +64,11 @@ namespace ISXLOGS
             return FormatServerOutput(response.str());
         } else if (error_code == boost::asio::error::operation_aborted)
         {
-            HandleError(boost::asio::error::timed_out);
+            HandleError("Reading error", boost::asio::error::timed_out);
             return string();
         };
 
-        HandleError(error_code);
+        HandleError("Reading error", error_code);
         return string();
     };
     
@@ -76,11 +77,11 @@ namespace ISXLOGS
     {
         if (!error_code)
         {
-            *s_log_stream << "Connection closed" << std::endl;
+            *s_log_stream << "LOG: " << "Connection closed" << std::endl;
             return true;
         }
 
-        HandleError(error_code);
+        HandleError("Close error", error_code);
         return false;
     };
 
@@ -90,12 +91,12 @@ namespace ISXLOGS
     {
         if (!error_code)
         {
-            *s_log_stream << "Handshake successful. Connection upgraded to TLS" << std::endl;
+            *s_log_stream << "LOG: " << "Handshake successful. Connection upgraded to TLS" << std::endl;
             *ssl_toogle = true;
             return true;
         }
 
-        HandleError(error_code);
+        HandleError("Update security error", error_code);
         *ssl_toogle = false;
         return false;
     };
