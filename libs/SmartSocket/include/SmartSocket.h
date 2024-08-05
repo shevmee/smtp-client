@@ -27,7 +27,7 @@ namespace ISXSmartSocket
         bool Connect(const string& server, int port);
         
         bool Write(const string& data);
-        string Read(bool raw_output = false);
+        string Read();
         
         bool Close();
 
@@ -44,7 +44,7 @@ namespace ISXSmartSocket
         // Async part
         bool AsyncConnectCoroutine(const string& server, int port, asio::yield_context& yield);
         bool AsyncWriteCoroutine(const string& data, asio::yield_context& yield);
-        string AsyncReadCoroutine(asio::yield_context& yield, bool raw_output = false);
+        string AsyncReadCoroutine(asio::yield_context& yield);
         bool AsyncUpgradeSecurityCoroutine(asio::yield_context& yield);
 
     private:

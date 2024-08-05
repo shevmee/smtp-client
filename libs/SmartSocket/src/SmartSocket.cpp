@@ -48,7 +48,7 @@ namespace ISXSmartSocket
         return ISXLOGS::SmartSocketMethodsHandlers::HandleWrite(data, ec);
     };
 
-    string SmartSocket::Read(bool raw_output)
+    string SmartSocket::Read()
     {
         asio::streambuf buffer;
         system::error_code ec;
@@ -147,7 +147,7 @@ namespace ISXSmartSocket
         return ISXLOGS::SmartSocketMethodsHandlers::HandleWrite(data, ec);
     };
 
-    string SmartSocket::AsyncReadCoroutine(asio::yield_context& yield, bool raw_output)
+    string SmartSocket::AsyncReadCoroutine(asio::yield_context& yield)
     {
         asio::streambuf buffer;
         system::error_code ec;
