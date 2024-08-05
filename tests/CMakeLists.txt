@@ -11,40 +11,20 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-SET(TestsMailMessageBuilderSource 
-    TestsMailMessageBuilder.cpp
-    ../src/MailMessageBuilder.cpp
-    ../src/MailAttachment.cpp
-    ../src/MailAddress.cpp
-)
-
-SET(TestsMailAttachmentSource 
-    TestsMailAttachment.cpp
-    ../src/MailAttachment.cpp
-)
-
-SET(TestsMailMessageFormatterSource 
-    TestsMailMessageFormatter.cpp
-    ../src/MailMessageFormatter.cpp
-    ../src/MailMessageBuilder.cpp
-    ../src/MailAttachment.cpp
-    ../src/MailAddress.cpp
-)
-
-
 add_executable(TestsMain 
     TestsMain.cpp
-    ${TestsMailMessageBuilderSource}
-    ${TestsMailAttachmentSource}
-    ${TestsMailMessageFormatterSource}
+    TestsMailMessageBuilder.cpp
+    TestsMailMessageFormatter.cpp
+    TestsMailAttachment.cpp
 )
 
 target_include_directories(TestsMain PRIVATE 
-    ${CMAKE_SOURCE_DIR}/headers
+    ${CMAKE_SOURCE_DIR}/libs/MailMessage/include
 )
 
 target_link_libraries(TestsMain 
     GTest::gtest_main
+    MailMessage
 )
 
 include(GoogleTest)
