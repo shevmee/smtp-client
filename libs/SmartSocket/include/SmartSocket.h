@@ -29,6 +29,8 @@ namespace ISXSmartSocket
         string GetServername() const;
         int GetServerPort() const;
 
+        bool SetTimeout(int timeout);
+
         boost::asio::io_context& GetIoContext();
 
         bool AsyncConnectCoroutine(const string& server, int port, asio::yield_context& yield);
@@ -42,6 +44,8 @@ namespace ISXSmartSocket
         int m_port;
 
         bool m_ssl_enabled;
+
+        int m_timeout = 5;
 
         tcp::resolver m_resolver;
         asio::io_context& m_io_context;

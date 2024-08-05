@@ -2,6 +2,7 @@
 #include "Handlers.h"
 
 #include <iostream>
+#include <boost/asio/steady_timer.hpp>
 
 namespace ISXSmartSocket
 {
@@ -49,6 +50,12 @@ namespace ISXSmartSocket
         return m_io_context;
     };
 
+    bool SmartSocket::SetTimeout(int timeout)
+    {
+        m_timeout = timeout;
+        return true;
+    };
+
     bool SmartSocket::AsyncConnectCoroutine(const string& server, int port, asio::yield_context& yield)
     {
         m_server = server;
@@ -80,8 +87,22 @@ namespace ISXSmartSocket
 
     string SmartSocket::AsyncReadCoroutine(asio::yield_context& yield)
     {
-        asio::streambuf buffer;
         system::error_code ec;
+
+        asio::steady_timer timer(yield.get_executor());
+        timer.expires_after(std::chrono::seconds(m_timeout));
+        
+        asio::streambuf buffer;
+
+        timer.async_wait([&](const system::error_code& error) {
+            if (!error) {
+                if (!m_ssl_enabled) {
+                    m_socket.next_layer().cancel();
+                } else {
+                    m_socket.lowest_layer().cancel();
+                };
+            }
+        });
 
         if (!m_ssl_enabled)
         {
@@ -90,6 +111,9 @@ namespace ISXSmartSocket
         {
             asio::async_read_until(m_socket, buffer, "\r\n", yield[ec]);   
         };
+
+        // Cancel the timer if the read completes first
+        timer.cancel();
 
         return ISXLOGS::SmartSocketMethodsHandlers::HandleRead(buffer, ec);
     };

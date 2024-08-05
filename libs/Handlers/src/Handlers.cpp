@@ -7,6 +7,7 @@ namespace ISXLOGS
     void SmartSocketMethodsHandlers::HandleError(const boost::system::error_code& error_code)
     {
         *s_log_stream << error_code.message() << std::endl;
+        throw std::runtime_error(error_code.message());
     };
 
     string SmartSocketMethodsHandlers::FormatServerOutput(string raw_output)
@@ -60,9 +61,13 @@ namespace ISXLOGS
             );
 
             return FormatServerOutput(response.str());
+        } else if (error_code == boost::asio::error::operation_aborted)
+        {
+            HandleError(boost::asio::error::timed_out);
+            return string();
         };
 
-        *s_log_stream << "Error receiving: " << error_code.message() << std::endl;
+        HandleError(error_code);
         return string();
     };
     

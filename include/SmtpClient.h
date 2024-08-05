@@ -7,7 +7,6 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/format.hpp>
 #include <boost/asio/spawn.hpp>
-#include <boost/asio/steady_timer.hpp>
 
 #include <iostream>
 #include <string>
@@ -42,6 +41,8 @@ namespace ISXSC
         future<void> AsyncAuthenticate(const string& username, const string& password);
         bool Dispose();
 
+        bool SetTimeout(int timeout);
+
     private:
 
         ISXSmartSocket::SmartSocket m_smart_socket;
@@ -59,8 +60,5 @@ namespace ISXSC
         bool AsyncSendEhloCmd(asio::yield_context& yield);
         bool AsyncSendStartTlsCmd(asio::yield_context& yield);
         bool AsyncUpgradeSecurity(asio::yield_context& yield);
-
-        // Timeout timer
-        void SetTimeout(asio::steady_timer& timer, int seconds, std::promise<void>* promise);
     };
 }; // namespace ISXSC
