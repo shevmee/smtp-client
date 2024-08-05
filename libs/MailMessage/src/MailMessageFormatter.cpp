@@ -72,7 +72,7 @@ namespace ISXSC {
 
         if (!message.attachments.empty()) {
             headers << "MIME-Version: 1.0\r\n"
-                    << "Content-Type: multipart/mixed; boundary=\"boundary\"\r\n";
+                    << "Content-Type: multipart/mixed; boundary=\"" + boundary + "\"\r\n";
         }
 
         headers << "\r\n";
@@ -83,7 +83,7 @@ namespace ISXSC {
         std::ostringstream body;
 
         if (!message.attachments.empty()) {
-            body << "--boundary\r\n"
+            body << "--" + boundary + "\r\n"
                  << "Content-Type: text/plain; charset=\"UTF-8\"\r\n"
                  << "Content-Transfer-Encoding: 7bit\r\n\r\n";
         }
