@@ -38,14 +38,9 @@ namespace ISXSC
         SmtpClient(asio::io_context& io_context, asio::ssl::context& ssl_context);
         ~SmtpClient();
 
-        // Strand part
-        bool Connect(const string& server, int port);
-        bool Authenticate(const string& username, const string& password);
-        bool Dispose();
-
-        // Async part
         future<void> AsyncConnect(const string& server, int port);
         future<void> AsyncAuthenticate(const string& username, const string& password);
+        bool Dispose();
 
     private:
 
@@ -56,16 +51,11 @@ namespace ISXSC
 
         int m_timeout;
 
-        // Strand part
-        bool SendEhloCmd();
-        bool SendStartTlsCmd();
-        bool UpgradeSecurity();
         bool SendMailFromCmd();
         bool SendRcptToCmd();
         bool SendDataCmd();
         bool SendQuitCmd();
 
-        // Async part
         bool AsyncSendEhloCmd(asio::yield_context& yield);
         bool AsyncSendStartTlsCmd(asio::yield_context& yield);
         bool AsyncUpgradeSecurity(asio::yield_context& yield);

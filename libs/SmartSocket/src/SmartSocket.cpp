@@ -19,74 +19,6 @@ namespace ISXSmartSocket
         Close();
     };
 
-    // Strand part
-    bool SmartSocket::Connect(const string& server, int port)
-    {
-        m_server = server;
-        m_port = port;
-
-        system::error_code ec;
-
-        tcp::resolver::query query(m_server, std::to_string(m_port));
-        tcp::resolver::results_type results = m_resolver.resolve(query);
-        asio::connect(m_socket.next_layer(), results, ec);
-        
-        return ISXLOGS::SmartSocketMethodsHandlers::HandleConnection(GetServername(), GetServerPort(), ec);
-    };
-
-    bool SmartSocket::Write(const string& data)
-    {
-        system::error_code ec;
-        if (!m_ssl_enabled)
-        {
-            asio::write(m_socket.next_layer(), asio::buffer(data), ec);
-        } else
-        {
-            asio::write(m_socket, asio::buffer(data), ec);
-        };
-
-        return ISXLOGS::SmartSocketMethodsHandlers::HandleWrite(data, ec);
-    };
-
-    string SmartSocket::Read()
-    {
-        asio::streambuf buffer;
-        system::error_code ec;
-
-        if (!m_ssl_enabled)
-        {
-            int bytes = asio::read_until(m_socket.next_layer(), buffer, "\r\n", ec);
-        }
-        else
-        {
-            int bytes = asio::read_until(m_socket, buffer, "\r\n", ec);
-        };
-
-        return ISXLOGS::SmartSocketMethodsHandlers::HandleRead(buffer, ec);
-    }
-
-    bool SmartSocket::Close()
-    {
-        system::error_code ec;
-        if (IsOpen())
-        {
-            m_socket.next_layer().close(ec);
-        } else
-        {
-            return true;
-        };
-
-        return ISXLOGS::SmartSocketMethodsHandlers::HandleClose(ec);
-    };
-
-    bool SmartSocket::UpgradeSecurity()
-    {
-        system::error_code ec;
-        m_socket.handshake(boost::asio::ssl::stream_base::handshake_type::client, ec);
-    
-        return ISXLOGS::SmartSocketMethodsHandlers::HandleUpgradeSecurity(ec, &m_ssl_enabled);
-    };
-
     bool SmartSocket::IsOpen() const
     {
         return m_socket.next_layer().is_open();
@@ -117,7 +49,6 @@ namespace ISXSmartSocket
         return m_io_context;
     };
 
-    // Async part
     bool SmartSocket::AsyncConnectCoroutine(const string& server, int port, asio::yield_context& yield)
     {
         m_server = server;
@@ -169,5 +100,19 @@ namespace ISXSmartSocket
         m_socket.async_handshake(boost::asio::ssl::stream_base::handshake_type::client, yield[ec]);
     
         return ISXLOGS::SmartSocketMethodsHandlers::HandleUpgradeSecurity(ec, &m_ssl_enabled);
+    };
+
+    bool SmartSocket::Close()
+    {
+        system::error_code ec;
+        if (IsOpen())
+        {
+            m_socket.next_layer().close(ec);
+        } else
+        {
+            return true;
+        };
+
+        return ISXLOGS::SmartSocketMethodsHandlers::HandleClose(ec);
     };
 }; // namespace ISXSmartSocket

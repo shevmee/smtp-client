@@ -22,17 +22,7 @@ namespace ISXSmartSocket
     public:
         SmartSocket(asio::io_context& io_context, asio::ssl::context& ssl_context);
         ~SmartSocket();
-
-        // Strand part
-        bool Connect(const string& server, int port);
         
-        bool Write(const string& data);
-        string Read();
-        
-        bool Close();
-
-        bool UpgradeSecurity();
-
         bool IsOpen() const;
         string GetLocalname() const;
         int GetLocalPort() const;
@@ -41,11 +31,11 @@ namespace ISXSmartSocket
 
         boost::asio::io_context& GetIoContext();
 
-        // Async part
         bool AsyncConnectCoroutine(const string& server, int port, asio::yield_context& yield);
         bool AsyncWriteCoroutine(const string& data, asio::yield_context& yield);
         string AsyncReadCoroutine(asio::yield_context& yield);
         bool AsyncUpgradeSecurityCoroutine(asio::yield_context& yield);
+        bool Close();
 
     private:
         string m_server;
