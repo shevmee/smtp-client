@@ -23,9 +23,9 @@ int main()
     });
 
     ISXSC::SmtpClient smtp_client(io_context, ssl_context);
+    
     // Example of async connect to smtp server
-    // future<void> connection = smtp_client.AsyncConnect("smtp.gmail.com", 587);
-    future<void> connection = smtp_client.AsyncConnect("localhost", 2525);
+    future<void> connection = smtp_client.AsyncConnect("smtp.gmail.com", 587);
 
     try
     {
