@@ -76,7 +76,7 @@ namespace ISXSC
             mutable
             {
                 asio::steady_timer timer(m_smart_socket.GetIoContext());
-                SetTimeot(timer, m_timeout, &promise);
+                SetTimeout(timer, m_timeout, &promise);
 
                 m_smart_socket.AsyncConnectCoroutine(server, port, yield);
                 std::cout << m_smart_socket.AsyncReadCoroutine(yield);
@@ -117,7 +117,7 @@ namespace ISXSC
             mutable
             {
                 asio::steady_timer timer(m_smart_socket.GetIoContext());
-                SetTimeot(timer, m_timeout, &promise);
+                SetTimeout(timer, m_timeout, &promise);
 
                 m_smart_socket.AsyncWriteCoroutine(query, yield);
                 std::cout << m_smart_socket.AsyncReadCoroutine(yield);
@@ -173,7 +173,7 @@ namespace ISXSC
     };
 
     // Timeout timer
-    void SmtpClient::SetTimeot(asio::steady_timer& timer, int seconds, std::promise<void>* promise)
+    void SmtpClient::SetTimeout(asio::steady_timer& timer, int seconds, std::promise<void>* promise)
     {
         timer.expires_from_now(std::chrono::seconds(seconds));
         timer.async_wait(

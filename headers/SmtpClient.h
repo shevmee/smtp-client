@@ -71,6 +71,6 @@ namespace ISXSC
         bool AsyncUpgradeSecurity(asio::yield_context& yield);
 
         // Timeout timer
-        void SetTimeot(asio::steady_timer& timer, int seconds, std::promise<void>* promise);
+        void SetTimeout(asio::steady_timer& timer, int seconds, std::promise<void>* promise);
     };
 }; // namespace ISXSC

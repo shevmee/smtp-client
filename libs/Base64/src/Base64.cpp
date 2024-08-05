@@ -14,10 +14,7 @@ namespace ISXBase64
     {
         auto decoded_size = boost::beast::detail::base64::decoded_size(encoded.size());
         std::string decoded_output(decoded_size, '\0');
-
-        auto result = boost::beast::detail::base64::decode(decoded_output.data(), encoded.data(), encoded.size());
-
-        decoded_output.resize(result.first);
+        boost::beast::detail::base64::decode(decoded_output.data(), encoded.data(), encoded.size());
         return decoded_output;
     };
 }; // namespace ISXBase64
