@@ -4,7 +4,7 @@
 
 int main()
 {
-    ISXSC::MailMessageBuilder builder;
+    ISXMM::MailMessageBuilder builder;
     auto message  = builder.SetFrom("romanbychko84@gmail.com", "Roman Buchko")
         .AddTo("irabychko84@GMAIL.COM", "Buchko Ira")
         .AddTo("123@gmail.com", "123")
@@ -13,11 +13,11 @@ int main()
         .AddAttachment("123.txt")
         .Build();
     
-    std::cout<< ISXSC::MailMessageFormatter::MailHeaders(message);
-    std::cout<< ISXSC::MailMessageFormatter::MailBody(message);
-    std::cout<< ISXSC::MailMessageFormatter::MailAttachmentHeaders(message.attachments.at(0));
+    std::cout<< ISXMM::MailMessageFormatter::MailHeaders(message);
+    std::cout<< ISXMM::MailMessageFormatter::MailBody(message);
+    std::cout<< ISXMM::MailMessageFormatter::MailAttachmentHeaders(message.attachments.at(0));
     // file base64 goes here
-    std::cout << ISXSC::MailMessageFormatter::boundary;
+    std::cout << ISXMM::MailMessageFormatter::boundary;
     // std::cout<< ISXSC::MailMessageFormatter::MailAttachmentHeaders(message.attachments.at(0));
     // more files ...
     // std::cout << "--" + ISXSC::MailMessageFormatter::boundary;

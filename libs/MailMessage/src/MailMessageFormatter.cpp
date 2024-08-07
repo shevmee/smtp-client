@@ -13,18 +13,23 @@
 
 namespace ISXMM {
 
-    std::string MailMessageFormatter::MailFrom(const MailAddress& from) {
-        if (from.get_name().empty()) {
+    std::string MailMessageFormatter::MailFrom(const MailAddress& from) 
+    {
+        if (from.get_name().empty()) 
+        {
             return "From: " + from.get_address() + "\r\n";
         }
         return "From: " + from.get_name() + " <" + from.get_address() + ">\r\n";
     }
 
-    std::string MailMessageFormatter::MailTo(const std::vector<MailAddress>& to) {
+    std::string MailMessageFormatter::MailTo(const std::vector<MailAddress>& to) 
+    {
         std::ostringstream to_stream;
         to_stream << "To: ";
-        for (const auto& address : to) {
-            if (address.get_name().empty()) {
+        for (const auto& address : to)
+         {
+            if (address.get_name().empty()) 
+            {
                 to_stream << address.get_address() << ", ";
             }
             else
@@ -39,10 +44,9 @@ namespace ISXMM {
         return to_string;
     }
 
-    std::string MailMessageFormatter::MailCc(const std::vector<MailAddress>& cc) {
-        if (cc.empty()) {
-            return "";
-        }
+    std::string MailMessageFormatter::MailCc(const std::vector<MailAddress>& cc) 
+    {
+        if (cc.empty()) {return ""; }
 
         std::ostringstream cc_stream;
         cc_stream << "Cc: ";
@@ -63,14 +67,16 @@ namespace ISXMM {
         return cc_string;
     }
 
-    std::string MailMessageFormatter::MailHeaders(const MailMessage& message) {
+    std::string MailMessageFormatter::MailHeaders(const MailMessage& message) 
+    {
         std::ostringstream headers;
         headers << MailFrom(message.from)
                 << MailTo(message.to)
                 << MailCc(message.cc)
                 << "Subject: " + message.subject + "\r\n";
 
-        if (!message.attachments.empty()) {
+        if (!message.attachments.empty()) 
+        {
             headers << "MIME-Version: 1.0\r\n"
                     << "Content-Type: multipart/mixed; boundary=\"" + boundary + "\"\r\n";
         }
@@ -79,10 +85,12 @@ namespace ISXMM {
         return headers.str();
     }
 
-    std::string MailMessageFormatter::MailBody(const MailMessage& message) {
+    std::string MailMessageFormatter::MailBody(const MailMessage& message) 
+    {
         std::ostringstream body;
 
-        if (!message.attachments.empty()) {
+        if (!message.attachments.empty()) 
+        {
             body << "--" + boundary + "\r\n"
                  << "Content-Type: text/plain; charset=\"UTF-8\"\r\n"
                  << "Content-Transfer-Encoding: 7bit\r\n\r\n";
@@ -92,7 +100,8 @@ namespace ISXMM {
         return body.str();
     }
 
-    std::string MailMessageFormatter::MailAttachmentHeaders(const MailAttachment& attachment, const std::string& filetype) {
+    std::string MailMessageFormatter::MailAttachmentHeaders(const MailAttachment& attachment, const std::string& filetype)
+    {
 
         std::ostringstream formatted_attachments;
         formatted_attachments  << "Content-Type: " << filetype << "; name=\"" + attachment.get_name() + "\"\r\n"
