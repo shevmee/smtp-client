@@ -4,13 +4,13 @@
 
 int main() {
     try {
-        SMTPResponse response{"250 2.1.5 OK ... - gsmtp  "};
+        ISXR::SMTPResponse response{"250 2.1.5 OK ... - gsmtp  "};
 
         std::cout << "Code: " << response.get_code() << std::endl;
         std::cout << "Enhanced Status Code: " << response.get_enhanced_code() << std::endl;
         std::cout << "Text: " << response.get_text() << std::endl;
 
-        if (response.get_status() == StatusType::PermanentNegative) 
+        if (response.get_status() == ISXR::StatusType::PermanentNegative) 
         {
             // something went wrong
         }

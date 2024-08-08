@@ -1,10 +1,13 @@
 #pragma once
 
-enum class StatusType
+namespace ISXR
 {
-    PositiveCompletion,
-    PositiveIntermediate,
-    TransientNegative,
-    PermanentNegative,
-    Undefined
-};
+    enum class StatusType
+    {
+        PositiveCompletion,
+        PositiveIntermediate,
+        TransientNegative,
+        PermanentNegative,
+        Undefined
+    };
+}
