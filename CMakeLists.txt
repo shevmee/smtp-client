@@ -34,6 +34,8 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/Base64)
 # Add subdirectory for the SmartSocket library
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/SmartSocket)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/SMTPResponse)
+
 # Link libraries to the client target
 target_link_libraries(client PRIVATE
     OpenSSL::SSL
@@ -41,4 +43,5 @@ target_link_libraries(client PRIVATE
     SmartSocket
     Base64
     ${Boost_LIBRARIES}
+    SMTPResponse
 )
