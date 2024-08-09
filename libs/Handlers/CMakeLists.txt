@@ -16,3 +16,7 @@ target_sources(Handlers PRIVATE
 target_include_directories(Handlers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+target_link_libraries(Handlers PUBLIC
+    SMTPResponse
+)

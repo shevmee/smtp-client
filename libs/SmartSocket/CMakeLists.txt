@@ -20,3 +20,7 @@ target_link_libraries(SmartSocket PRIVATE
 target_include_directories(SmartSocket PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+target_link_libraries(SmartSocket PUBLIC
+    SMTPResponse
+)

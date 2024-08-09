@@ -29,13 +29,13 @@ namespace ISXSC
                 try
                 {
                     m_smart_socket.AsyncConnectCoroutine(server, port, yield);
-                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                    std::cout << m_smart_socket.AsyncReadCoroutine(yield).get_formated_response();
                 
                     AsyncSendEhloCmd(yield);
-                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                    std::cout << m_smart_socket.AsyncReadCoroutine(yield).get_formated_response();
                 
                     AsyncSendStartTlsCmd(yield);
-                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                    std::cout << m_smart_socket.AsyncReadCoroutine(yield).get_formated_response();
                 
                     AsyncUpgradeSecurity(yield);
                     
@@ -72,7 +72,7 @@ namespace ISXSC
                 try
                 {
                     m_smart_socket.AsyncWriteCoroutine(query, yield);
-                    std::cout << m_smart_socket.AsyncReadCoroutine(yield);
+                    std::cout << m_smart_socket.AsyncReadCoroutine(yield).get_formated_response();
                     promise.set_value();
                 }
                 catch(const std::exception& e)

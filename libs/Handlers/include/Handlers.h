@@ -4,6 +4,8 @@
 #include <boost/asio.hpp>
 #include <iostream>
 
+#include "SMTPResponse.h"
+
 using std::string;
 
 namespace ISXLOGS
@@ -19,7 +21,7 @@ namespace ISXLOGS
             const string& data
             , const boost::system::error_code& error_code);
 
-        static string HandleRead(
+        static ISXR::SMTPResponse HandleRead(
             boost::asio::streambuf& buffer
             , const boost::system::error_code& error_code);
 
@@ -37,7 +39,6 @@ namespace ISXLOGS
         static inline void HandleError(
             const string& prefix, const boost::system::error_code& error_code);
 
-        static string FormatServerOutput(string raw_output);
         static inline std::ostream* s_log_stream = &std::clog;
     };
 }; // namespace ISXErrorHandlers
