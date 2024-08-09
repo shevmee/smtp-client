@@ -4,8 +4,15 @@
 
 int main() {
     try {
-        ISXR::SMTPResponse response{"250 2.1.5 OK ... - gsmtp  "};
-
+        ISXR::SMTPResponse response{R"(250-smtp.gmail.com at your service, [217.65.241.77]
+250-SIZE 35882577
+250-8BITMIME
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8)"};
+        
         std::cout << "Code: " << response.get_code() << std::endl;
         std::cout << "Enhanced Status Code: " << response.get_enhanced_code() << std::endl;
         std::cout << "Text: " << response.get_text() << std::endl;

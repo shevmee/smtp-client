@@ -31,6 +31,7 @@ namespace ISXR
         void ParseResponse(const std::string& response);
         void FormatResponse(const std::string& response);
         bool IsValidResponse(const std::string& response, std::smatch& matches) const;
+        auto SplitAtEndline(const std::string& response) const -> std::pair<std::string, std::string>;
     };
 
 } // namespace ISXR

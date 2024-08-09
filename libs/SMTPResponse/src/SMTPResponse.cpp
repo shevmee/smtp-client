@@ -52,9 +52,11 @@ namespace ISXR
         return m_formated_response;
     }
 
-    void SMTPResponse::ParseResponse(const std::string& response) 
+    void SMTPResponse::ParseResponse(const std::string& raw_response) 
     {
         std::smatch matches;
+        auto [response, tail] = SplitAtEndline(raw_response);
+
         if (IsValidResponse(response, matches)) 
         {
             if (matches.size() > 1) 
@@ -67,7 +69,7 @@ namespace ISXR
             }
             if (matches.size() > 3 && matches[3].matched) 
             {
-                m_text = matches[3].str();
+                m_text = matches[3].str() + tail;
             }
         } else 
         {
@@ -78,21 +80,21 @@ namespace ISXR
     void SMTPResponse::FormatResponse(const std::string& response)
     {
         std::smatch matches;
-        if (IsValidResponse(response, matches)) 
-        {
-            m_formated_response = "S: " + response;
-            m_formated_response = std::regex_replace(m_formated_response, std::regex("\n"), "\nS: ");
-            m_formated_response.erase(m_formated_response.end() - 3, m_formated_response.end());
-        } else 
-        {
-            throw std::invalid_argument("Invalid response format");
-        }
+        m_formated_response = "S: " + response;
+        m_formated_response = std::regex_replace(m_formated_response, std::regex("\n"), "\nS: ");
+        m_formated_response.erase(m_formated_response.end() - 3, m_formated_response.end());
     }
 
     bool SMTPResponse::IsValidResponse(const std::string& response, std::smatch& matches) const
     {
         std::regex responsePattern(R"(^(\d{3})(?:[ -](\d\.\d\.\d))?[ -](.*)$)");
         return std::regex_match(response, matches, responsePattern);
+    }
+
+    auto SMTPResponse::SplitAtEndline(const std::string& response) const -> std::pair<std::string, std::string>
+    {
+        auto endline_pos = std::min(response.find("\n"), response.find("\r"));
+        return std::make_pair(response.substr(0, endline_pos), response.substr(std::min(endline_pos, response.size())));
     }
 
     bool SMTPResponse::CodeEquals(u_int16_t code) const 
