@@ -9,6 +9,7 @@ int main() {
         std::cout << "Code: " << response.get_code() << std::endl;
         std::cout << "Enhanced Status Code: " << response.get_enhanced_code() << std::endl;
         std::cout << "Text: " << response.get_text() << std::endl;
+        std::cout << "Formated Response: " << response.get_formated_response() << std::endl;
 
         if (response.get_status() == ISXR::StatusType::PermanentNegative) 
         {

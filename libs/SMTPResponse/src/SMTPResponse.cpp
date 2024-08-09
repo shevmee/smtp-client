@@ -5,6 +5,7 @@ namespace ISXR
     SMTPResponse::SMTPResponse(const std::string& response) 
     {
         ParseResponse(response);
+        FormatResponse(response);
 
         switch (m_code / 100) 
         {
@@ -46,12 +47,15 @@ namespace ISXR
         return m_status;
     }
 
+    std::string SMTPResponse::get_formated_response() const 
+    {
+        return m_formated_response;
+    }
+
     void SMTPResponse::ParseResponse(const std::string& response) 
     {
-        std::regex responsePattern(R"(^(\d{3})(?:[ -](\d\.\d\.\d))?[ -](.*)$)");
         std::smatch matches;
-
-        if (std::regex_match(response, matches, responsePattern)) 
+        if (IsValidResponse(response, matches)) 
         {
             if (matches.size() > 1) 
             {
@@ -69,6 +73,26 @@ namespace ISXR
         {
             throw std::invalid_argument("Invalid response format");
         }
+    }
+
+    void SMTPResponse::FormatResponse(const std::string& response)
+    {
+        std::smatch matches;
+        if (IsValidResponse(response, matches)) 
+        {
+            m_formated_response = "S: " + response;
+            m_formated_response = std::regex_replace(m_formated_response, std::regex("\n"), "\nS: ");
+            m_formated_response.erase(m_formated_response.end() - 3, m_formated_response.end());
+        } else 
+        {
+            throw std::invalid_argument("Invalid response format");
+        }
+    }
+
+    bool SMTPResponse::IsValidResponse(const std::string& response, std::smatch& matches) const
+    {
+        std::regex responsePattern(R"(^(\d{3})(?:[ -](\d\.\d\.\d))?[ -](.*)$)");
+        return std::regex_match(response, matches, responsePattern);
     }
 
     bool SMTPResponse::CodeEquals(u_int16_t code) const 
