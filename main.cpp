@@ -6,11 +6,11 @@ int main()
 {
     ISXMM::MailMessageBuilder builder;
     auto message  = builder.SetFrom("romanbychko84@gmail.com", "Roman Buchko")
-        .AddTo("irabychko84@GMAIL.COM", "Buchko Ira")
-        .AddTo("123@gmail.com", "123")
-        .SetSubject("Testing...")
-        .SetBody("Hello, World. This is a test message. Regards, Roman Buchko.")
-        .AddAttachment("123.txt")
+        .add_to("irabychko84@GMAIL.COM", "Buchko Ira")
+        .add_to("123@gmail.com", "123")
+        .set_subject("Testing...")
+        .set_body("Hello, World. This is a test message. Regards, Roman Buchko.")
+        .add_attachment("123.txt")
         .Build();
     
     std::cout<< ISXMM::MailMessageFormatter::MailHeaders(message);

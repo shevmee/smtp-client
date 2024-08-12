@@ -13,13 +13,13 @@ namespace ISXMM
     class MailMessageBuilder
     {
     public:
-        MailMessageBuilder& SetFrom(const std::string& email, const std::string& name = "");
-        MailMessageBuilder& AddTo(const std::string& email, const std::string& name = "");
-        MailMessageBuilder& AddCc(const std::string& email, const std::string& name = "");
-        MailMessageBuilder& AddBcc(const std::string& email, const std::string& name = "");
-        MailMessageBuilder& SetSubject(const std::string& subject);
-        MailMessageBuilder& SetBody(const std::string& body);
-        MailMessageBuilder& AddAttachment(const std::string &path);
+        MailMessageBuilder& set_from(const std::string& email, const std::string& name = "");
+        MailMessageBuilder& add_to(const std::string& email, const std::string& name = "");
+        MailMessageBuilder& add_cc(const std::string& email, const std::string& name = "");
+        MailMessageBuilder& add_bcc(const std::string& email, const std::string& name = "");
+        MailMessageBuilder& set_subject(const std::string& subject);
+        MailMessageBuilder& set_body(const std::string& body);
+        MailMessageBuilder& add_attachment(const std::string &path);
         MailMessage Build();
 
     private:
@@ -29,6 +29,6 @@ namespace ISXMM
         std::vector<MailAddress> m_bcc = {};
         std::string m_subject;
         std::string m_body;
-        std::vector<MailAttachment> attachments;
+        std::vector<MailAttachment> m_attachments;
     };
 }

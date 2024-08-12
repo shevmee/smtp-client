@@ -6,8 +6,8 @@
 
 TEST(MailMessageBuilderTest, SetFrom) {
     ISXMM::MailMessageBuilder builder;
-    builder.SetFrom("sender@example.com", "Sender Name")
-        .AddTo("placeholder");
+    builder.set_from("sender@example.com", "Sender Name")
+        .add_to("placeholder");
     
     ISXMM::MailMessage message = builder.Build();
     EXPECT_EQ(message.from.get_address(), "sender@example.com");
@@ -16,8 +16,8 @@ TEST(MailMessageBuilderTest, SetFrom) {
 
 TEST(MailMessageBuilderTest, AddTo) {
     ISXMM::MailMessageBuilder builder;
-    builder.SetFrom("sender@example.com", "Sender Name")
-           .AddTo("recipient@example.com", "Recipient Name");
+    builder.set_from("sender@example.com", "Sender Name")
+           .add_to("recipient@example.com", "Recipient Name");
     
     ISXMM::MailMessage message = builder.Build();
     EXPECT_EQ(message.to.size(), 1);
@@ -27,9 +27,9 @@ TEST(MailMessageBuilderTest, AddTo) {
 
 TEST(MailMessageBuilderTest, AddCc) {
     ISXMM::MailMessageBuilder builder;
-    builder.SetFrom("sender@example.com", "Sender Name")
-           .AddCc("cc@example.com", "Cc Name")
-           .AddTo("placeholder");
+    builder.set_from("sender@example.com", "Sender Name")
+           .add_cc("cc@example.com", "Cc Name")
+           .add_to("placeholder");
     
     ISXMM::MailMessage message = builder.Build();
     EXPECT_EQ(message.cc.size(), 1);
@@ -39,9 +39,9 @@ TEST(MailMessageBuilderTest, AddCc) {
 
 TEST(MailMessageBuilderTest, AddBcc) {
     ISXMM::MailMessageBuilder builder;
-    builder.SetFrom("sender@example.com", "Sender Name")
-           .AddBcc("bcc@example.com", "Bcc Name")
-           .AddTo("placeholder");
+    builder.set_from("sender@example.com", "Sender Name")
+           .add_bcc("bcc@example.com", "Bcc Name")
+           .add_to("placeholder");
     
     ISXMM::MailMessage message = builder.Build();
     EXPECT_EQ(message.bcc.size(), 1);
@@ -51,9 +51,9 @@ TEST(MailMessageBuilderTest, AddBcc) {
 
 TEST(MailMessageBuilderTest, SetSubject) {
     ISXMM::MailMessageBuilder builder;
-    builder.SetFrom("sender@example.com", "Sender Name")
-           .SetSubject("Test Subject")
-           .AddTo("placeholder");
+    builder.set_from("sender@example.com", "Sender Name")
+           .set_subject("Test Subject")
+           .add_to("placeholder");
     
     ISXMM::MailMessage message = builder.Build();
     EXPECT_EQ(message.subject, "Test Subject");
@@ -61,9 +61,9 @@ TEST(MailMessageBuilderTest, SetSubject) {
 
 TEST(MailMessageBuilderTest, SetBody) {
     ISXMM::MailMessageBuilder builder;
-    builder.SetFrom("sender@example.com", "Sender Name")
-           .SetBody("Test Body")
-           .AddTo("placeholder");
+    builder.set_from("sender@example.com", "Sender Name")
+           .set_body("Test Body")
+           .add_to("placeholder");
     
     ISXMM::MailMessage message = builder.Build();
     EXPECT_EQ(message.body, "Test Body");
@@ -71,9 +71,9 @@ TEST(MailMessageBuilderTest, SetBody) {
 
 TEST(MailMessageBuilderTest, AddAttachment) {
     ISXMM::MailMessageBuilder builder;
-    builder.SetFrom("sender@example.com", "Sender Name")
-           .AddAttachment("/path/to/attachment.txt")
-           .AddTo("placeholder");
+    builder.set_from("sender@example.com", "Sender Name")
+           .add_attachment("/path/to/attachment.txt")
+           .add_to("placeholder");
     
     ISXMM::MailMessage message = builder.Build();
     EXPECT_EQ(message.attachments.size(), 1);
@@ -82,14 +82,14 @@ TEST(MailMessageBuilderTest, AddAttachment) {
 
 TEST(MailMessageBuilderTest, BuildThrowsIfFromNotSet) {
     ISXMM::MailMessageBuilder builder;
-    builder.AddTo("recipient@example.com", "Recipient Name");
+    builder.add_to("recipient@example.com", "Recipient Name");
     
     EXPECT_THROW(builder.Build(), std::runtime_error);
 }
 
 TEST(MailMessageBuilderTest, BuildThrowsIfToNotSet) {
     ISXMM::MailMessageBuilder builder;
-    builder.SetFrom("sender@example.com", "Sender Name");
+    builder.set_from("sender@example.com", "Sender Name");
     
     EXPECT_THROW(builder.Build(), std::runtime_error);
 }
