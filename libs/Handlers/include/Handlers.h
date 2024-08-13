@@ -33,11 +33,11 @@ namespace ISXLOGS
             , bool* ssl_toogle);
 
     private:
-        SmartSocketMethodsHandlers() = delete;
-        ~SmartSocketMethodsHandlers() = delete;
-        
         static inline void HandleError(
             const string& prefix, const boost::system::error_code& error_code);
+            
+        SmartSocketMethodsHandlers() = delete;
+        ~SmartSocketMethodsHandlers() = delete;
 
         static inline std::ostream* s_log_stream = &std::clog;
     };
