@@ -21,7 +21,7 @@ public:
         const string& data
         , const boost::system::error_code& error_code);
 
-    static ISXR::SMTPResponse HandleRead(
+    static ISXResponse::SMTPResponse HandleRead(
         boost::asio::streambuf& buffer
         , const boost::system::error_code& error_code);
 

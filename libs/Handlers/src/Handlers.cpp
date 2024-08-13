@@ -39,7 +39,7 @@ bool SmartSocketMethodsHandlers::HandleWrite(
     return false;
 };
 
-ISXR::SMTPResponse SmartSocketMethodsHandlers::HandleRead(
+ISXResponse::SMTPResponse SmartSocketMethodsHandlers::HandleRead(
         boost::asio::streambuf& buffer
         , const boost::system::error_code& error_code)
 {
@@ -58,7 +58,7 @@ ISXR::SMTPResponse SmartSocketMethodsHandlers::HandleRead(
         std::ostream_iterator<char>(response)
     );
 
-    return ISXR::SMTPResponse(response.str());
+    return ISXResponse::SMTPResponse(response.str());
 };
 
 bool SmartSocketMethodsHandlers::HandleClose(
