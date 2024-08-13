@@ -1,6 +1,6 @@
 #include "SMTPResponse.h"
 
-namespace ISXR
+namespace ISXResponse
 {
     SMTPResponse::SMTPResponse(const std::string& response) 
     {
@@ -79,7 +79,6 @@ namespace ISXR
 
     void SMTPResponse::FormatResponse(const std::string& response)
     {
-        std::smatch matches;
         m_formated_response = "S: " + response;
         m_formated_response = std::regex_replace(m_formated_response, std::regex("\n"), "\nS: ");
         m_formated_response.erase(m_formated_response.end() - 3, m_formated_response.end());
@@ -107,4 +106,4 @@ namespace ISXR
         return m_status == status;
     }
 
-} // namespace SMTPResonse
+} // namespace ISXResponse

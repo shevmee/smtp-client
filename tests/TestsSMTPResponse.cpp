@@ -2,7 +2,7 @@
 #include "SMTPResponse.h"
 #include <stdexcept>
 
-namespace ISXR {
+namespace ISXResponse {
 
 class SMTPResponseTest : public ::testing::Test {
 protected:
@@ -115,4 +115,4 @@ TEST_F(SMTPResponseTest, MultipleLinesResponse)
     EXPECT_TRUE(response.StatusEquals(StatusType::PositiveCompletion));
 }
 
-} // namespace ISXR
+} // namespace ISXResponse

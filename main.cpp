@@ -4,7 +4,7 @@
 
 int main() {
     try {
-        ISXR::SMTPResponse response{R"(250-smtp.gmail.com at your service, [217.65.241.77]
+        ISXResponse::SMTPResponse response{R"(250-smtp.gmail.com at your service, [217.65.241.77]
 250-SIZE 35882577
 250-8BITMIME
 250-STARTTLS
@@ -18,7 +18,7 @@ int main() {
         std::cout << "Text: " << response.get_text() << std::endl;
         std::cout << "Formated Response: " << response.get_formated_response() << std::endl;
 
-        if (response.get_status() == ISXR::StatusType::PermanentNegative) 
+        if (response.get_status() == ISXResponse::StatusType::PermanentNegative) 
         {
             // something went wrong
         }
