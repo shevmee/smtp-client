@@ -1,12 +1,11 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 
-project(Response)
+project(HandlersExample)
 
+set(CMAKE_CXX_STANDARD 17)
+
+add_subdirectory(libs/Handlers)
 add_subdirectory(libs/SMTPResponse)
-add_subdirectory(tests)
 
-add_executable(Response main.cpp)
-
-target_link_libraries(Response SMTPResponse)
-
-
+add_executable(HandlersExample example.cpp)
+target_link_libraries(HandlersExample Handlers SMTPResponse)
