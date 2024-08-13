@@ -37,7 +37,7 @@ public:
 
     bool AsyncConnectCoroutine(const string& server, int port, asio::yield_context& yield);
     bool AsyncWriteCoroutine(const string& data, asio::yield_context& yield);
-    ISXR::SMTPResponse AsyncReadCoroutine(asio::yield_context& yield);
+    ISXResponse::SMTPResponse AsyncReadCoroutine(asio::yield_context& yield);
     bool AsyncUpgradeSecurityCoroutine(asio::yield_context& yield);
     bool Close();
 

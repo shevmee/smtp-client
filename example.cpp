@@ -26,13 +26,19 @@ int main()
         try
         {
             socket.AsyncConnectCoroutine("smtp.gmail.com", 587, yield);
-            std::cout << socket.AsyncReadCoroutine(yield).get_formated_response();
+            ISXResponse::SMTPResponse response = socket.AsyncReadCoroutine(yield);
+            std::cout << response.get_formated_response();
+            ISXResponse::SMTPResponse::CheckStatus(response, ISXResponse::StatusType::PositiveCompletion);
             
-            socket.AsyncWriteCoroutine("EHLO qwe\r\n", yield);
-            std::cout << socket.AsyncReadCoroutine(yield).get_formated_response();
+            socket.AsyncWriteCoroutine("EHLO lorem ipsum\r\n", yield);
+            response = socket.AsyncReadCoroutine(yield);
+            std::cout << response.get_formated_response();
+            ISXResponse::SMTPResponse::CheckStatus(response, ISXResponse::StatusType::PositiveCompletion);
 
             socket.AsyncWriteCoroutine("QUIT\r\n", yield);
-            std::cout << socket.AsyncReadCoroutine(yield).get_formated_response();
+            response = socket.AsyncReadCoroutine(yield);
+            std::cout << response.get_formated_response();
+            ISXResponse::SMTPResponse::CheckStatus(response, ISXResponse::StatusType::PositiveCompletion);
 
             promise.set_value();
         } catch (const std::exception& err)
@@ -46,7 +52,7 @@ int main()
         future.get();
     } catch (const std::exception& e)
     {
-        // Process timeout or other errors
+        std::cerr << e.what() << std::endl;
     }
 
     io_context.stop();

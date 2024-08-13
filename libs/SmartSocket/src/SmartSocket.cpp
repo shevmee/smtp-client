@@ -84,7 +84,7 @@ bool SmartSocket::AsyncWriteCoroutine(const string& data, asio::yield_context& y
     return ISXLOGS::SmartSocketMethodsHandlers::HandleWrite(data, ec);
 };
 
-ISXR::SMTPResponse SmartSocket::AsyncReadCoroutine(asio::yield_context& yield)
+ISXResponse::SMTPResponse SmartSocket::AsyncReadCoroutine(asio::yield_context& yield)
 {
     system::error_code ec;
     asio::streambuf buffer;
