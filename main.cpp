@@ -18,11 +18,8 @@ int main() {
         std::cout << "Text: " << response.get_text() << std::endl;
         std::cout << "Formated Response: " << response.get_formated_response() << std::endl;
 
-        if (response.get_status() == ISXResponse::StatusType::PermanentNegative) 
-        {
-            // something went wrong
-        }
-    } catch (const std::invalid_argument& e) {
+        ISXResponse::SMTPResponse::CheckStatus(response, ISXResponse::StatusType::PermanentNegative);
+    } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
 
