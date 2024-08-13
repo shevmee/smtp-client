@@ -1,6 +1,6 @@
 #include "SMTPResponse.h"
 
-namespace ISXR
+namespace ISXResponse
 {
     SMTPResponse::SMTPResponse(const std::string& response) 
     {
@@ -52,6 +52,19 @@ namespace ISXR
         return m_formated_response;
     }
 
+    std::string SMTPResponse::get_raw_response() const 
+    {
+        return m_raw_response;
+    }
+
+    void SMTPResponse::CheckStatus(const SMTPResponse& response, StatusType status)
+    {
+        if (!response.StatusEquals(status)) 
+        {
+            throw std::runtime_error("Unexpected status code in response: " + response.get_raw_response());
+        }
+    }
+
     void SMTPResponse::ParseResponse(const std::string& raw_response) 
     {
         std::smatch matches;
@@ -59,6 +72,7 @@ namespace ISXR
 
         if (IsValidResponse(response, matches)) 
         {
+            m_raw_response = response;
             if (matches.size() > 1) 
             {
                 m_code = std::stoi(matches[1].str());
@@ -79,7 +93,6 @@ namespace ISXR
 
     void SMTPResponse::FormatResponse(const std::string& response)
     {
-        std::smatch matches;
         m_formated_response = "S: " + response;
         m_formated_response = std::regex_replace(m_formated_response, std::regex("\n"), "\nS: ");
         m_formated_response.erase(m_formated_response.end() - 3, m_formated_response.end());
@@ -107,4 +120,4 @@ namespace ISXR
         return m_status == status;
     }
 
-} // namespace SMTPResonse
+} // namespace ISXResponse

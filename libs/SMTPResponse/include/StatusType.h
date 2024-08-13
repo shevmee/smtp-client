@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ISXR
+namespace ISXResponse
 {
     enum class StatusType
     {
@@ -10,4 +10,4 @@ namespace ISXR
         PermanentNegative,
         Undefined
     };
-}
+} // namespace ISXResponse
