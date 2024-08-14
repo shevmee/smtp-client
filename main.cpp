@@ -25,15 +25,15 @@ int main()
     try
     {
         smtp_client.AsyncConnect("smtp.gmail.com", 587).get();
-        smtp_client.AsyncAuthenticate("romanbychko84@gmail.com", "azsc ypnd buwv srsy").get();
+        smtp_client.AsyncAuthenticate("user", "password").get();
 
         ISXMM::MailMessageBuilder mail_builder;
-        mail_builder.set_from("romanbychko84@gmail.com", "Roman Buchko")
-            .add_to("irabychko84@gmail.com", "Ira Buchko")
-            .set_subject("Test message")
-            .set_body("howdy, Hello, Ira! This is a test message from Roman.")
-            .add_attachment("/media/roma-b/Новий том/Softserve/C++/smtp-client/CMakeLists.txt")
-            .add_attachment("/media/roma-b/Новий том/Softserve/C++/smtp-client/main.cpp");
+        mail_builder.set_from("johndoe@gmail.com", "John Doe")
+            .add_to("emmawatson@gmail.com", "Emma Watson")
+            .set_subject("Hello, Emma!")
+            .set_body("Hello, Emma! This is a test email from John Doe.")
+            .add_attachment("/home/johndoe/Documents/attachment1.txt")
+            .add_attachment("/home/johndoe/Documents/attachment2.txt");
 
         smtp_client.AsyncSendMail(mail_builder.Build()).get();
         smtp_client.Dispose();
