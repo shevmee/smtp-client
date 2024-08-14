@@ -57,8 +57,11 @@ ISXResponse::SMTPResponse SmartSocketMethodsHandlers::HandleRead(
         boost::asio::buffers_end(buffer.data()),
         std::ostream_iterator<char>(response)
     );
+    
+    ISXResponse::SMTPResponse smtp_response(response.str());
+    *s_log_stream << smtp_response.get_formated_response() << std::endl;
 
-    return ISXResponse::SMTPResponse(response.str());
+    return smtp_response;
 };
 
 bool SmartSocketMethodsHandlers::HandleClose(

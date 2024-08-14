@@ -7,8 +7,11 @@ int main()
 {
     boost::asio::streambuf response;
     response.sputn("220 smtp.example.com ESMTP Postfix", 33);   
-    std::cout << ISXLogs::SmartSocketMethodsHandlers::HandleRead(response, boost::system::error_code()).get_code() << std::endl;
-    std::cout << ISXLogs::SmartSocketMethodsHandlers::HandleRead(response, boost::system::error_code()).get_formated_response() << std::endl;
+    
+    std::cout
+    << "Code: "
+    << ISXLogs::SmartSocketMethodsHandlers::HandleRead(response, boost::system::error_code()).get_code()
+    << std::endl;
 
     try
     {
