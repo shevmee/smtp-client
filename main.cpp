@@ -25,7 +25,17 @@ int main()
     try
     {
         smtp_client.AsyncConnect("smtp.gmail.com", 587).get();
-        smtp_client.AsyncAuthenticate("username", "password").get();
+        smtp_client.AsyncAuthenticate("romanbychko84@gmail.com", "azsc ypnd buwv srsy").get();
+
+        ISXMM::MailMessageBuilder mail_builder;
+        mail_builder.set_from("romanbychko84@gmail.com", "Roman Buchko")
+            .add_to("irabychko84@gmail.com", "Ira Buchko")
+            .set_subject("Test message")
+            .set_body("howdy, Hello, Ira! This is a test message from Roman.")
+            .add_attachment("/media/roma-b/Новий том/Softserve/C++/smtp-client/CMakeLists.txt")
+            .add_attachment("/media/roma-b/Новий том/Softserve/C++/smtp-client/main.cpp");
+
+        smtp_client.AsyncSendMail(mail_builder.Build()).get();
         smtp_client.Dispose();
     } catch (const std::exception& e)
     {

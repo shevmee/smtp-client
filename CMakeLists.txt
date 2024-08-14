@@ -39,7 +39,10 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/SmartSocket)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/SMTPResponse)
 
 # Add subdirectory for the MailMessage library
-add_subdirectory(libs/MailMessage)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/MailMessage)
+
+# Add subdirectory for the MessageSender library
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/MessageSender)
 
 # Add subdirectory for the tests
 add_subdirectory(tests)
@@ -53,6 +56,7 @@ target_link_libraries(client PRIVATE
     ${Boost_LIBRARIES}
     SMTPResponse
     MailMessage
+    MessageSender
 )
 
 
