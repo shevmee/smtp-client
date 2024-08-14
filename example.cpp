@@ -27,17 +27,14 @@ int main()
         {
             socket.AsyncConnectCoroutine("smtp.gmail.com", 587, yield);
             ISXResponse::SMTPResponse response = socket.AsyncReadCoroutine(yield);
-            std::cout << response.get_formated_response();
             ISXResponse::SMTPResponse::CheckStatus(response, ISXResponse::StatusType::PositiveCompletion);
             
             socket.AsyncWriteCoroutine("EHLO lorem ipsum\r\n", yield);
             response = socket.AsyncReadCoroutine(yield);
-            std::cout << response.get_formated_response();
             ISXResponse::SMTPResponse::CheckStatus(response, ISXResponse::StatusType::PositiveCompletion);
 
             socket.AsyncWriteCoroutine("QUIT\r\n", yield);
             response = socket.AsyncReadCoroutine(yield);
-            std::cout << response.get_formated_response();
             ISXResponse::SMTPResponse::CheckStatus(response, ISXResponse::StatusType::PositiveCompletion);
 
             promise.set_value();

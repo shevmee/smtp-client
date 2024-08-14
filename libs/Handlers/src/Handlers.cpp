@@ -2,7 +2,7 @@
 
 #include <regex>
 
-namespace ISXLOGS
+namespace ISXLogs
 {
 void SmartSocketMethodsHandlers::HandleError(
     const string& prefix, const boost::system::error_code& error_code)
@@ -57,8 +57,11 @@ ISXResponse::SMTPResponse SmartSocketMethodsHandlers::HandleRead(
         boost::asio::buffers_end(buffer.data()),
         std::ostream_iterator<char>(response)
     );
+    
+    ISXResponse::SMTPResponse smtp_response(response.str());
+    *s_log_stream << smtp_response.get_formated_response();
 
-    return ISXResponse::SMTPResponse(response.str());
+    return smtp_response;
 };
 
 bool SmartSocketMethodsHandlers::HandleClose(
@@ -76,17 +79,17 @@ bool SmartSocketMethodsHandlers::HandleClose(
 
 bool SmartSocketMethodsHandlers::HandleUpgradeSecurity(
         const boost::system::error_code& error_code
-        , bool* ssl_toogle)
+        , bool* ssl_toggle)
 {
     if (!error_code)
     {
         *s_log_stream << "LOG: " << "Handshake successful. Connection upgraded to TLS" << std::endl;
-        *ssl_toogle = true;
+        *ssl_toggle = true;
         return true;
     }
 
     HandleError("Update security error", error_code);
-    *ssl_toogle = false;
+    *ssl_toggle = false;
     return false;
 };
-}; // namespace ISXErrorHandlers
+}; // namespace ISXLogs
