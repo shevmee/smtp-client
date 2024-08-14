@@ -10,35 +10,35 @@ using std::string;
 
 namespace ISXLOGS
 {
-    class SmartSocketMethodsHandlers
-    {
-    public:
-        static bool HandleConnection(
-            const string& server, const int port
-            , const boost::system::error_code& error_code);
+class SmartSocketMethodsHandlers
+{
+public:
+    static bool HandleConnection(
+        const string& server, const int port
+        , const boost::system::error_code& error_code);
 
-        static bool HandleWrite(
-            const string& data
-            , const boost::system::error_code& error_code);
+    static bool HandleWrite(
+        const string& data
+        , const boost::system::error_code& error_code);
 
-        static ISXR::SMTPResponse HandleRead(
-            boost::asio::streambuf& buffer
-            , const boost::system::error_code& error_code);
+    static ISXResponse::SMTPResponse HandleRead(
+        boost::asio::streambuf& buffer
+        , const boost::system::error_code& error_code);
 
-        static bool HandleClose(
-            const boost::system::error_code& error_code);
+    static bool HandleClose(
+        const boost::system::error_code& error_code);
 
-        static bool HandleUpgradeSecurity(
-            const boost::system::error_code& error_code
-            , bool* ssl_toogle);
+    static bool HandleUpgradeSecurity(
+        const boost::system::error_code& error_code
+        , bool* ssl_toogle);
 
-    private:
-        static inline void HandleError(
-            const string& prefix, const boost::system::error_code& error_code);
-            
-        SmartSocketMethodsHandlers() = delete;
-        ~SmartSocketMethodsHandlers() = delete;
+private:
+    static inline void HandleError(
+        const string& prefix, const boost::system::error_code& error_code);
+        
+    SmartSocketMethodsHandlers() = delete;
+    ~SmartSocketMethodsHandlers() = delete;
 
-        static inline std::ostream* s_log_stream = &std::clog;
-    };
+    static inline std::ostream* s_log_stream = &std::clog;
+};
 }; // namespace ISXErrorHandlers
