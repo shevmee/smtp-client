@@ -109,16 +109,19 @@ bool SmartSocket::AsyncUpgradeSecurityCoroutine(asio::yield_context& yield)
 {
     system::error_code ec;
     m_socket.async_handshake(boost::asio::ssl::stream_base::handshake_type::client, yield[ec]);
-    
+    m_ssl_enabled = true;
     return ISXLogs::SmartSocketMethodsHandlers::HandleUpgradeSecurity(ec, &m_ssl_enabled);
 };
 
 bool SmartSocket::Close()
 {
     system::error_code ec;
-    if (IsOpen())
+    if (IsOpen() && !m_ssl_enabled)
     {
         m_socket.next_layer().close(ec);
+    } else if (IsOpen() && m_ssl_enabled)
+    {
+        m_socket.lowest_layer().close(ec);
     } else
     {
         return true;
