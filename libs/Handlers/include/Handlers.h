@@ -8,7 +8,7 @@
 
 using std::string;
 
-namespace ISXLOGS
+namespace ISXLogs
 {
 class SmartSocketMethodsHandlers
 {
@@ -30,7 +30,7 @@ public:
 
     static bool HandleUpgradeSecurity(
         const boost::system::error_code& error_code
-        , bool* ssl_toogle);
+        , bool* ssl_toggle);
 
 private:
     static inline void HandleError(
@@ -41,4 +41,4 @@ private:
 
     static inline std::ostream* s_log_stream = &std::clog;
 };
-}; // namespace ISXErrorHandlers
+}; // namespace ISXLogs
