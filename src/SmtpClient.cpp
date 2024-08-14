@@ -101,20 +101,36 @@ future<void> SmtpClient::AsyncSendMail(const ISXMM::MailMessage& mail_message)
         , [this, mail_message, promise = std::move(promise)](asio::yield_context yield)
         mutable
         {   
-            AsyncSendMailFromCmd(mail_message, yield);
-            std::cout << m_smart_socket.AsyncReadCoroutine(yield).get_formated_response();
-            AsyncSendRcptToCmd(mail_message, yield);
-            std::cout << m_smart_socket.AsyncReadCoroutine(yield).get_formated_response();
-            AsyncSendDataCmd(yield);
-            std::cout << m_smart_socket.AsyncReadCoroutine(yield).get_formated_response();
-            ISXMS::MessageSender message_sender(mail_message, [&](const string& query)
+            try
             {
-                return m_smart_socket.AsyncWriteCoroutine(query, yield);
-            });
-            message_sender.SendMessage();
-            m_smart_socket.AsyncWriteCoroutine("\r\n.\r\n", yield);
-            std::cout<< m_smart_socket.AsyncReadCoroutine(yield).get_formated_response();
-            promise.set_value();
+                AsyncSendMailFromCmd(mail_message, yield);
+                ISXResponse::SMTPResponse::CheckStatus(
+                    m_smart_socket.AsyncReadCoroutine(yield), ISXResponse::StatusType::PositiveCompletion);
+
+                AsyncSendRcptToCmd(mail_message, yield);
+                ISXResponse::SMTPResponse::CheckStatus(
+                    m_smart_socket.AsyncReadCoroutine(yield), ISXResponse::StatusType::PositiveCompletion);
+
+                AsyncSendDataCmd(yield);
+                ISXResponse::SMTPResponse::CheckStatus(
+                    m_smart_socket.AsyncReadCoroutine(yield), ISXResponse::StatusType::PositiveIntermediate);
+
+                ISXMS::MessageSender message_sender(mail_message, [&](const string& query)
+                {
+                    return m_smart_socket.AsyncWriteCoroutine(query, yield);
+                });
+                message_sender.SendMessage();
+
+                m_smart_socket.AsyncWriteCoroutine("\r\n.\r\n", yield);
+                ISXResponse::SMTPResponse::CheckStatus(
+                    m_smart_socket.AsyncReadCoroutine(yield), ISXResponse::StatusType::PositiveCompletion);
+                
+                promise.set_value();
+            } 
+            catch(...)
+            {
+                promise.set_exception(std::current_exception());
+            };
         }
     );
     
