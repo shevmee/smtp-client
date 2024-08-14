@@ -66,7 +66,7 @@ bool SmartSocket::AsyncConnectCoroutine(const string& server, int port, asio::yi
     tcp::resolver::results_type results = m_resolver.async_resolve(query, yield[ec]);
     asio::async_connect(m_socket.next_layer(), results.begin(), results.end(), yield[ec]);
     
-    return ISXLOGS::SmartSocketMethodsHandlers::HandleConnection(GetServername(), GetServerPort(), ec);
+    return ISXLogs::SmartSocketMethodsHandlers::HandleConnection(GetServername(), GetServerPort(), ec);
 };
 
 bool SmartSocket::AsyncWriteCoroutine(const string& data, asio::yield_context& yield)
@@ -81,7 +81,7 @@ bool SmartSocket::AsyncWriteCoroutine(const string& data, asio::yield_context& y
         asio::async_write(m_socket, asio::buffer(data), yield[ec]);
     };
 
-    return ISXLOGS::SmartSocketMethodsHandlers::HandleWrite(data, ec);
+    return ISXLogs::SmartSocketMethodsHandlers::HandleWrite(data, ec);
 };
 
 ISXResponse::SMTPResponse SmartSocket::AsyncReadCoroutine(asio::yield_context& yield)
@@ -102,7 +102,7 @@ ISXResponse::SMTPResponse SmartSocket::AsyncReadCoroutine(asio::yield_context& y
     // Cancel the timer if the read completes first
     timer->cancel();
     
-    return ISXLOGS::SmartSocketMethodsHandlers::HandleRead(buffer, ec);
+    return ISXLogs::SmartSocketMethodsHandlers::HandleRead(buffer, ec);
 };
 
 bool SmartSocket::AsyncUpgradeSecurityCoroutine(asio::yield_context& yield)
@@ -110,7 +110,7 @@ bool SmartSocket::AsyncUpgradeSecurityCoroutine(asio::yield_context& yield)
     system::error_code ec;
     m_socket.async_handshake(boost::asio::ssl::stream_base::handshake_type::client, yield[ec]);
     
-    return ISXLOGS::SmartSocketMethodsHandlers::HandleUpgradeSecurity(ec, &m_ssl_enabled);
+    return ISXLogs::SmartSocketMethodsHandlers::HandleUpgradeSecurity(ec, &m_ssl_enabled);
 };
 
 bool SmartSocket::Close()
@@ -124,7 +124,7 @@ bool SmartSocket::Close()
         return true;
     };
 
-    return ISXLOGS::SmartSocketMethodsHandlers::HandleClose(ec);
+    return ISXLogs::SmartSocketMethodsHandlers::HandleClose(ec);
 };
 
 std::unique_ptr<asio::steady_timer> SmartSocket::StartTimer(
