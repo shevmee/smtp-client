@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.28)
 
 project(SmtpClient VERSION 1.0)
@@ -37,6 +38,12 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/SmartSocket)
 # Add subdirectory for the SMTPResponse library
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/SMTPResponse)
 
+# Add subdirectory for the MailMessage library
+add_subdirectory(libs/MailMessage)
+
+# Add subdirectory for the tests
+add_subdirectory(tests)
+
 # Link libraries to the client target
 target_link_libraries(client PRIVATE
     OpenSSL::SSL
@@ -45,4 +52,7 @@ target_link_libraries(client PRIVATE
     Base64
     ${Boost_LIBRARIES}
     SMTPResponse
+    MailMessage
 )
+
+
