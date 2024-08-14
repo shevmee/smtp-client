@@ -20,6 +20,9 @@ namespace ISXResponse
         bool CodeEquals(u_int16_t code) const;
         bool StatusEquals(StatusType status) const;
         std::string get_formated_response() const;
+        std::string get_raw_response() const;
+
+        static void CheckStatus(const SMTPResponse& response, StatusType status);
     
     private:    
         void ParseResponse(const std::string& response);
@@ -31,6 +34,7 @@ namespace ISXResponse
         std::string m_enhanced_code;
         std::string m_text;
         std::string m_formated_response;
+        std::string m_raw_response;
         StatusType m_status;
     };
 

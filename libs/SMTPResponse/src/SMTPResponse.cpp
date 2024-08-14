@@ -52,6 +52,19 @@ namespace ISXResponse
         return m_formated_response;
     }
 
+    std::string SMTPResponse::get_raw_response() const 
+    {
+        return m_raw_response;
+    }
+
+    void SMTPResponse::CheckStatus(const SMTPResponse& response, StatusType status)
+    {
+        if (!response.StatusEquals(status)) 
+        {
+            throw std::runtime_error("Unexpected status code in response: " + response.get_raw_response());
+        }
+    }
+
     void SMTPResponse::ParseResponse(const std::string& raw_response) 
     {
         std::smatch matches;
@@ -59,6 +72,7 @@ namespace ISXResponse
 
         if (IsValidResponse(response, matches)) 
         {
+            m_raw_response = response;
             if (matches.size() > 1) 
             {
                 m_code = std::stoi(matches[1].str());
