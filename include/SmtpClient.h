@@ -39,6 +39,7 @@ public:
     future<void> AsyncRegister(const string& username, const string& password);
     future<void> AsyncAuthenticate(const string& username, const string& password);
     future<void> AsyncSendMail(const ISXMM::MailMessage& mail_message);
+    future<void> AsyncQuit();
     bool Dispose();
 
     bool SetTimeout(int timeout);

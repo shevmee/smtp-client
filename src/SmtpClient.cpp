@@ -17,25 +17,16 @@ SmtpClient::SmtpClient(asio::io_context& io_context, asio::ssl::context& ssl_con
 
 SmtpClient::~SmtpClient()
 {
-    std::promise<void> promise;
-    std::future<void> future = promise.get_future();
-
-    asio::spawn(m_smart_socket->GetIoContext()
-        , [this, promise = std::move(promise)](asio::yield_context yield)
-        mutable
-        {
-            AsyncSendQuitCmd(yield);
-            promise.set_value();
-        }
-    );
-
-    try{
-        future.get();
-        delete m_smart_socket.release();
-    } catch (const std::exception& e)
+    if (m_smart_socket->IsOpen())
     {
-        std::cerr << "Exception in destructor called" << std::endl;
-    };
+        try{
+            AsyncQuit().get();
+            delete m_smart_socket.release();
+        } catch (const std::exception& e)
+        {
+            std::cerr << "Exception in destructor catched: " << e.what() << std::endl;
+        };
+    }
 };
 
 future<void> SmtpClient::AsyncConnect(const string& server, int port)
@@ -192,6 +183,33 @@ future<void> SmtpClient::AsyncSendMail(const ISXMM::MailMessage& mail_message)
     return future;
 };
 
+future<void> SmtpClient::AsyncQuit()
+{
+    std::promise<void> promise;
+    future<void> future = promise.get_future();
+
+    asio::spawn(
+        m_smart_socket->GetIoContext()
+        , [this, promise = std::move(promise)](asio::yield_context yield)
+        mutable
+        {
+            try
+            {
+                AsyncSendQuitCmd(yield);
+                ISXResponse::SMTPResponse::CheckStatus(
+                    m_smart_socket->AsyncReadCoroutine(yield), ISXResponse::StatusType::PositiveCompletion);
+                promise.set_value();
+            }
+            catch(...)
+            {
+                promise.set_exception(std::current_exception());
+            };
+        }
+    );
+
+    return future;
+};
+
 bool SmtpClient::Dispose()
 {
     return m_smart_socket->Close();
@@ -254,9 +272,6 @@ bool SmtpClient::AsyncSendDataCmd(asio::yield_context& yield)
 
 bool SmtpClient::AsyncSendQuitCmd(asio::yield_context& yield)
 {
-    bool quited = m_smart_socket->AsyncWriteCoroutine(S_CMD_QUIT + "\r\n", yield);
-    ISXResponse::SMTPResponse::CheckStatus(
-        m_smart_socket->AsyncReadCoroutine(yield), ISXResponse::StatusType::PositiveCompletion);
-    return quited;
+    return m_smart_socket->AsyncWriteCoroutine(S_CMD_QUIT + "\r\n", yield);
 };
 }; // namespace ISXSC

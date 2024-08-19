@@ -30,18 +30,19 @@ int main()
 
     try
     {
-        smtp_client->AsyncConnect("smtp.gmail.com", 587).get();
-        smtp_client->AsyncAuthenticate("user", "password").get();
+        smtp_client->AsyncConnect("localhost", 2525).get();
+        smtp_client->AsyncAuthenticate("user@gmail.com", "password").get();
 
         ISXMM::MailMessageBuilder mail_builder;
-        mail_builder.set_from("johndoe@gmail.com", "John Doe")
-            .add_to("emmawatson@gmail.com", "Emma Watson")
-            .set_subject("Hello, Emma!")
-            .set_body("Hello, Emma! This is a test email from John Doe.")
-            .add_attachment("/home/johndoe/Documents/attachment1.txt")
-            .add_attachment("/home/johndoe/Documents/attachment2.txt");
+        mail_builder.set_from("user@gmail.com")
+             .add_to("user@gmail.com")
+             .set_subject("Hello, Emma!")
+             .set_body("Hello, Emma! This is a test email from John Doe.")
+             .add_attachment("/home/johndoe/Documents/attachment1.txt")
+             .add_attachment("/home/johndoe/Documents/attachment2.txt");
 
         smtp_client->AsyncSendMail(mail_builder.Build()).get();
+        finish(io_context, worker, smtp_client);
     } catch (const std::exception& e)
     {
         // process exception
@@ -49,8 +50,6 @@ int main()
         finish(io_context, worker, smtp_client);
         return 1;
     };
-    
-    finish(io_context, worker, smtp_client);
     return 0;
 }
 
