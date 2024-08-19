@@ -16,7 +16,14 @@ SmartSocket::SmartSocket(asio::io_context& io_context, asio::ssl::context& ssl_c
 
 SmartSocket::~SmartSocket()
 {
-    Close();
+    try
+    {
+        Close();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << "Exception in destructor called" << std::endl;
+    }
 };
 
 bool SmartSocket::IsOpen() const
@@ -116,17 +123,9 @@ bool SmartSocket::AsyncUpgradeSecurityCoroutine(asio::yield_context& yield)
 bool SmartSocket::Close()
 {
     system::error_code ec;
-    if (IsOpen() && !m_ssl_enabled)
-    {
-        m_socket.next_layer().close(ec);
-    } else if (IsOpen() && m_ssl_enabled)
-    {
-        m_socket.lowest_layer().close(ec);
-    } else
-    {
-        return true;
-    };
-
+    m_socket.lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    m_socket.lowest_layer().cancel(ec);
+    m_socket.lowest_layer().close(ec);
     return ISXLogs::SmartSocketMethodsHandlers::HandleClose(ec);
 };
 
