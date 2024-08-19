@@ -1,5 +1,7 @@
 #include "SmtpClient.h"
 #include "SmartSocket.h"
+#include "MailMessage.h"
+#include "MailMessageBuilder.h"
 
 #include <iostream>
 #include <boost/asio.hpp>
@@ -16,6 +18,7 @@ int main()
     // Initialize the io_context and ssl_context
     boost::asio::io_context io_context;
     boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls_client);
+    ssl_context.set_verify_mode(boost::asio::ssl::verify_none);
     
     // Make io_context run in a separate thread and event loop poll for new async operations
     std::thread worker([&io_context]() {
@@ -28,7 +31,17 @@ int main()
     try
     {
         smtp_client->AsyncConnect("smtp.gmail.com", 587).get();
-        smtp_client->AsyncAuthenticate("user@gmail.com", "password").get();
+        smtp_client->AsyncAuthenticate("user", "password").get();
+
+        ISXMM::MailMessageBuilder mail_builder;
+        mail_builder.set_from("johndoe@gmail.com", "John Doe")
+            .add_to("emmawatson@gmail.com", "Emma Watson")
+            .set_subject("Hello, Emma!")
+            .set_body("Hello, Emma! This is a test email from John Doe.")
+            .add_attachment("/home/johndoe/Documents/attachment1.txt")
+            .add_attachment("/home/johndoe/Documents/attachment2.txt");
+
+        smtp_client->AsyncSendMail(mail_builder.Build()).get();
     } catch (const std::exception& e)
     {
         // process exception
@@ -44,7 +57,7 @@ int main()
 void finish(asio::io_context& io_context, std::thread& worker, std::unique_ptr<ISXSC::SmtpClient>& smtp_client)
 {
     delete smtp_client.release();
-    
+
     if (!io_context.stopped())
         io_context.stop();
 

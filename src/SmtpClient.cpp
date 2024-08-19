@@ -75,6 +75,41 @@ future<void> SmtpClient::AsyncConnect(const string& server, int port)
     return future;
 };
 
+future<void> SmtpClient::AsyncRegister(const string& username, const string& password)
+{
+    std::promise<void> promise;
+    future<void> future = promise.get_future();
+
+    std::string register_string = '\0' + username + '\0' + password;
+    std::string encoded_register_string = ISXBase64::Base64Encode(register_string);
+
+    std::string query = (format("%1% %2% \r\n")
+        % S_CMD_REGISTER
+        % encoded_register_string).str();
+
+    asio::spawn(
+        m_smart_socket->GetIoContext()
+        , [this, username, password, query, promise = std::move(promise)](asio::yield_context yield)
+        mutable
+        {
+            try
+            {
+                m_smart_socket->AsyncWriteCoroutine(query, yield);
+                ISXResponse::SMTPResponse::CheckStatus(
+                    m_smart_socket->AsyncReadCoroutine(yield), ISXResponse::StatusType::PositiveCompletion);
+
+                promise.set_value();
+            }
+            catch(...)
+            {
+                promise.set_exception(std::current_exception());
+            };
+        }
+    );
+
+    return future;
+};
+
 future<void> SmtpClient::AsyncAuthenticate(const string& username, const string& password)
 {
     std::promise<void> promise;
