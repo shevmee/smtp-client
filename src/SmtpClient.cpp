@@ -15,7 +15,25 @@ SmtpClient::SmtpClient(
 
 SmtpClient::~SmtpClient()
 {
-    Dispose();
+    std::promise<void> promise;
+    std::future<void> future = promise.get_future();
+
+    asio::spawn(m_smart_socket.GetIoContext()
+        , [this, promise = std::move(promise)](asio::yield_context yield)
+        mutable
+        {
+            AsyncSendQuitCmd(yield);
+            promise.set_value();
+        }
+    );
+
+    try{
+        future.get();
+        Dispose();
+    } catch (const std::exception& e)
+    {
+        std::cerr << "Exception in destructor called" << std::endl;
+    };
 };
 
 future<void> SmtpClient::AsyncConnect(const string& server, int port)
@@ -199,6 +217,9 @@ bool SmtpClient::AsyncSendDataCmd(asio::yield_context& yield)
 
 bool SmtpClient::AsyncSendQuitCmd(asio::yield_context& yield)
 {
-    return m_smart_socket.AsyncWriteCoroutine(S_CMD_QUIT + "\r\n", yield);
+    bool quited = m_smart_socket.AsyncWriteCoroutine(S_CMD_QUIT + "\r\n", yield);
+    ISXResponse::SMTPResponse::CheckStatus(
+        m_smart_socket.AsyncReadCoroutine(yield), ISXResponse::StatusType::PositiveCompletion);
+    return quited;
 };
 }; // namespace ISXSC
