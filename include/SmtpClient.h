@@ -53,8 +53,8 @@ private:
 
     int m_timeout;
 
-    bool AsyncSendMailFromCmd(const ISXMM::MailMessage& mail_message, asio::yield_context& yield);
-    bool AsyncSendRcptToCmd(const ISXMM::MailMessage& mail_message, asio::yield_context& yield);
+    bool AsyncSendMailFromCmd(const ISXMM::MailAddress& mail_message, asio::yield_context& yield);
+    bool AsyncSendRcptToCmd(const ISXMM::MailAddress& mail_address, asio::yield_context& yield);
     bool AsyncSendDataCmd(asio::yield_context& yield);
     bool AsyncSendQuitCmd(asio::yield_context& yield);
 
