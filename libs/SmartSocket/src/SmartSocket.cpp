@@ -136,7 +136,6 @@ bool SmartSocket::AsyncUpgradeSecurityCoroutine(asio::yield_context& yield)
 bool SmartSocket::Close()
 {
     system::error_code ec;
-    m_socket.shutdown(ec);
     m_socket.lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     m_socket.lowest_layer().cancel(ec);
     m_socket.lowest_layer().close(ec);
