@@ -39,10 +39,11 @@ public:
     future<void> AsyncAuthenticate(const string& username, const string& password);
     future<void> AsyncSendMail(const ISXMM::MailMessage& mail_message);
     future<void> AsyncQuit();
+
+    bool Reset();
+
     bool Dispose();
-
     bool ConnectionIsOpen();
-
     bool SetTimeout(int timeout);
 
 private:

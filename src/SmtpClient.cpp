@@ -219,6 +219,13 @@ future<void> SmtpClient::AsyncQuit()
     return future;
 };
 
+bool SmtpClient::Reset()
+{
+    // m_smart_socket.reset();
+    m_smart_socket = std::make_unique<ISXSmartSocket::SmartSocket>(
+        m_smart_socket->GetIoContext(), m_smart_socket->GetSslContext());
+};
+
 bool SmtpClient::Dispose()
 {
     return m_smart_socket->Close();

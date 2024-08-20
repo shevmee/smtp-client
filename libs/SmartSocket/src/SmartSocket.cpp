@@ -57,9 +57,14 @@ int SmartSocket::GetServerPort() const
     return server_port;
 };
 
-boost::asio::io_context& SmartSocket::GetIoContext()
+asio::io_context& SmartSocket::GetIoContext()
 {
     return m_io_context;
+};
+
+asio::ssl::context& SmartSocket::GetSslContext()
+{
+    return m_ssl_context;
 };
 
 bool SmartSocket::SetTimeout(int timeout)

@@ -33,7 +33,8 @@ public:
 
     bool SetTimeout(int timeout);
 
-    boost::asio::io_context& GetIoContext();
+    asio::io_context& GetIoContext();
+    asio::ssl::context& GetSslContext();
 
     bool AsyncConnectCoroutine(const string& server, int port, asio::yield_context& yield);
     bool AsyncWriteCoroutine(const string& data, asio::yield_context& yield);
