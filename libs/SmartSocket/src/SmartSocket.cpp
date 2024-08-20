@@ -140,7 +140,7 @@ bool SmartSocket::Close()
     m_socket.lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     m_socket.lowest_layer().cancel(ec);
     m_socket.lowest_layer().close(ec);
-    return ISXLogs::SmartSocketMethodsHandlers::HandleClose(ec);
+    return ISXLogs::SmartSocketMethodsHandlers::HandleClose(ec, &m_ssl_enabled);
 };
 
 std::unique_ptr<asio::steady_timer> SmartSocket::StartTimer(

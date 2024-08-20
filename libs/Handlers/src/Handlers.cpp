@@ -94,11 +94,13 @@ ISXResponse::SMTPResponse SmartSocketMethodsHandlers::HandleRead(
 };
 
 bool SmartSocketMethodsHandlers::HandleClose(
-    const boost::system::error_code& error_code)
+    const boost::system::error_code& error_code
+    , bool* ssl_toggle)
 {
     if (!error_code)
     {
         *s_log_stream << "Log: " << "Connection closed" << std::endl;
+        *ssl_toggle = false;
         return true;
     }
 

@@ -29,7 +29,8 @@ public:
         , const boost::system::error_code& error_code);
 
     static bool HandleClose(
-        const boost::system::error_code& error_code);
+        const boost::system::error_code& error_code
+        , bool* ssl_toggle);
 
     static bool HandleUpgradeSecurity(
         const boost::system::error_code& error_code
