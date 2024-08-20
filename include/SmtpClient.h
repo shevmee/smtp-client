@@ -11,7 +11,6 @@
 using namespace boost;
 using std::string;
 using std::unique_ptr;
-using std::string;
 using std::future;
 
 using asio::ip::tcp;

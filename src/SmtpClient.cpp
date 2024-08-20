@@ -17,15 +17,18 @@ SmtpClient::SmtpClient(asio::io_context& io_context, asio::ssl::context& ssl_con
 
 SmtpClient::~SmtpClient()
 {
-    if (m_smart_socket->IsOpen())
+    try
     {
-        try{
-            AsyncQuit().get();
-            delete m_smart_socket.release();
-        } catch (const std::exception& e)
+        if (m_smart_socket->IsOpen())
         {
-            std::cerr << "Exception in destructor catched: " << e.what() << std::endl;
+            AsyncQuit().get();
         };
+
+        delete m_smart_socket.release();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << "Exception in destructor catched while quitting, session could have been broken: " << e.what() << std::endl;
     }
 };
 

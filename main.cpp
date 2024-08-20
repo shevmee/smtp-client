@@ -27,10 +27,10 @@ int main()
     });
 
     std::unique_ptr<ISXSC::SmtpClient> smtp_client = std::make_unique<ISXSC::SmtpClient>(io_context, ssl_context);
-
+    
     try
     {
-        smtp_client->AsyncConnect("localhost", 2525).get();
+        smtp_client->AsyncConnect("smtp.gmail.com", 587).get();
         smtp_client->AsyncAuthenticate("user@gmail.com", "password").get();
 
         ISXMM::MailMessageBuilder mail_builder;

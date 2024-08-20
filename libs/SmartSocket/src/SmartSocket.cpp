@@ -43,12 +43,18 @@ int SmartSocket::GetLocalPort() const
 
 string SmartSocket::GetServername() const
 {
-    return m_socket.next_layer().remote_endpoint().address().to_string();
+    system::error_code ec;
+    string server_name = m_socket.next_layer().remote_endpoint(ec).address().to_string();
+    ISXLogs::SmartSocketMethodsHandlers::HandleRemoteEndpointOp(ec);
+    return server_name;
 };
 
 int SmartSocket::GetServerPort() const
 {
-    return m_socket.next_layer().remote_endpoint().port();
+    system::error_code ec;
+    int server_port = m_socket.next_layer().remote_endpoint(ec).port();
+    ISXLogs::SmartSocketMethodsHandlers::HandleRemoteEndpointOp(ec);
+    return server_port;
 };
 
 boost::asio::io_context& SmartSocket::GetIoContext()
@@ -69,9 +75,13 @@ bool SmartSocket::AsyncConnectCoroutine(const string& server, int port, asio::yi
 
     system::error_code ec;
 
+    auto timer = StartTimer(m_timeout, yield, ec);
+
     tcp::resolver::query query(m_server, std::to_string(m_port));
     tcp::resolver::results_type results = m_resolver.async_resolve(query, yield[ec]);
     asio::async_connect(m_socket.next_layer(), results.begin(), results.end(), yield[ec]);
+    
+    timer->cancel();
     
     return ISXLogs::SmartSocketMethodsHandlers::HandleConnection(GetServername(), GetServerPort(), ec);
 };
@@ -80,6 +90,8 @@ bool SmartSocket::AsyncWriteCoroutine(const string& data, asio::yield_context& y
 {
     system::error_code ec;
     
+    auto timer = StartTimer(m_timeout, yield, ec);
+
     if (!m_ssl_enabled)
     {
         asio::async_write(m_socket.next_layer(), asio::buffer(data), yield[ec]);
@@ -87,6 +99,8 @@ bool SmartSocket::AsyncWriteCoroutine(const string& data, asio::yield_context& y
     {
         asio::async_write(m_socket, asio::buffer(data), yield[ec]);
     };
+
+    timer->cancel();
 
     return ISXLogs::SmartSocketMethodsHandlers::HandleWrite(data, ec);
 };
@@ -106,7 +120,6 @@ ISXResponse::SMTPResponse SmartSocket::AsyncReadCoroutine(asio::yield_context& y
         asio::async_read_until(m_socket, buffer, "\r\n", yield[ec]);   
     };
 
-    // Cancel the timer if the read completes first
     timer->cancel();
     
     return ISXLogs::SmartSocketMethodsHandlers::HandleRead(buffer, ec);
