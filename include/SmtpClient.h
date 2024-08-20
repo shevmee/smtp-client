@@ -41,6 +41,8 @@ public:
     future<void> AsyncQuit();
     bool Dispose();
 
+    bool ConnectionIsOpen();
+
     bool SetTimeout(int timeout);
 
 private:

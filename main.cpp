@@ -27,7 +27,7 @@ int main()
     });
 
     std::unique_ptr<ISXSC::SmtpClient> smtp_client = std::make_unique<ISXSC::SmtpClient>(io_context, ssl_context);
-    
+
     try
     {
         smtp_client->AsyncConnect("smtp.gmail.com", 587).get();

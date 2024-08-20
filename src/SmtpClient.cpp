@@ -218,6 +218,11 @@ bool SmtpClient::Dispose()
     return m_smart_socket->Close();
 };
 
+bool SmtpClient::ConnectionIsOpen()
+{
+    return m_smart_socket->IsOpen();
+};
+
 bool SmtpClient::SetTimeout(int timeout)
 {
     return m_smart_socket->SetTimeout(timeout);
