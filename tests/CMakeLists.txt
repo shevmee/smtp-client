@@ -1,7 +1,7 @@
-option(BUILD_TESTS "Don't uild the tests" OFF)
+option(BUILD_TESTS "Don't build the tests" OFF)
 
 
-if (BUILD_TESTD)
+if (BUILD_TESTS)
     include(FetchContent)
 
     FetchContent_Declare(googletest
@@ -17,15 +17,18 @@ if (BUILD_TESTD)
         TestsMailMessageBuilder.cpp
         TestsMailMessageFormatter.cpp
         TestsMailAttachment.cpp
+        TestsSMTPResponse.cpp
     )
 
     target_include_directories(TestsMain PRIVATE 
         ${CMAKE_SOURCE_DIR}/libs/MailMessage/include
+        ${CMAKE_SOURCE_DIR}/libs/SMTPResponse/include
     )
 
     target_link_libraries(TestsMain 
         GTest::gtest_main
         MailMessage
+        SMTPResponse
     )
 
     include(GoogleTest)
