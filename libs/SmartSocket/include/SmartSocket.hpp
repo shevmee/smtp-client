@@ -9,7 +9,7 @@
 #include <regex>
 #include <future>
 
-#include "SMTPResponse.h"
+#include "SMTPResponse.hpp"
 
 using namespace boost;
 

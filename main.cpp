@@ -1,12 +1,12 @@
-#include "SmtpClient.h"
-#include "SmartSocket.h"
-#include "MailMessage.h"
-#include "MailMessageBuilder.h"
+#include "SmtpClient.hpp"
+#include "SmartSocket.hpp"
+#include "MailMessage.hpp"
+#include "MailMessageBuilder.hpp"
 
 #include <iostream>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include <SmartSocket.h>
+#include <SmartSocket.hpp>
 
 #include <memory>
 
@@ -31,7 +31,7 @@ int main()
     try
     {
         smtp_client->AsyncConnect("smtp.gmail.com", 587).get();
-        smtp_client->AsyncAuthenticate("user@gmail.com", "password").get();
+        smtp_client->AsyncAuthenticate("shevtsov00mkh@gmail.com", "efei pphf gzwq egoz").get();
 
         ISXMM::MailMessageBuilder mail_builder;
         mail_builder.set_from("user@gmail.com")

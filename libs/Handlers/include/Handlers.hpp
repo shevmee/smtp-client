@@ -4,7 +4,7 @@
 #include <boost/asio.hpp>
 #include <iostream>
 
-#include "SMTPResponse.h"
+#include "SMTPResponse.hpp"
 
 using std::string;
 

@@ -1,4 +1,4 @@
-#include "MailAttachment.h"
+#include "MailAttachment.hpp"
 
 #include <fstream>
 #include <string>

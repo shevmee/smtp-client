@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "SMTPResponse.h"
+#include "SMTPResponse.hpp"
 #include <stdexcept>
 
 using namespace ISXResponse;

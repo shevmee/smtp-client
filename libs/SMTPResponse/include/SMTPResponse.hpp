@@ -3,7 +3,7 @@
 #include <string>
 #include <regex>
 
-#include "StatusType.h"
+#include "StatusType.hpp"
 
 namespace ISXResponse
 {

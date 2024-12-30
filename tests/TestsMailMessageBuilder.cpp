@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "MailMessageBuilder.h"
-#include "MailAddress.h"
-#include "MailMessage.h"
-#include "MailAttachment.h"
+#include "MailMessageBuilder.hpp"
+#include "MailAddress.hpp"
+#include "MailMessage.hpp"
+#include "MailAttachment.hpp"
 
 TEST(MailMessageBuilderTest, SetFrom) {
     ISXMM::MailMessageBuilder builder;

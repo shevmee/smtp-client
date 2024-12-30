@@ -2,8 +2,8 @@
 
 #include <vector>
 #include <string>
-#include "MailAddress.h"
-#include "MailAttachment.h"
+#include "MailAddress.hpp"
+#include "MailAttachment.hpp"
 
 namespace ISXMM
 {

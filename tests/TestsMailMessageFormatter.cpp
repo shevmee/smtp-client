@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "MailMessageFormatter.h"
+#include "MailMessageFormatter.hpp"
 
 TEST(MailMessageFormatter, FormatMessage)
 {

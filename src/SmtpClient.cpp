@@ -1,6 +1,6 @@
-#include "SmtpClient.h"
-#include "SMTPResponse.h"
-#include "MessageSender.h"
+#include "SmtpClient.hpp"
+#include "SMTPResponse.hpp"
+#include "MessageSender.hpp"
 
 #include <iostream>
 

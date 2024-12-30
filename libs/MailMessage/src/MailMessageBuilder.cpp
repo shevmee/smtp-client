@@ -1,8 +1,8 @@
-#include "MailMessageBuilder.h"
+#include "MailMessageBuilder.hpp"
 
-#include "MailAddress.h"
-#include "MailMessage.h"
-#include "MailAttachment.h"
+#include "MailAddress.hpp"
+#include "MailMessage.hpp"
+#include "MailAttachment.hpp"
 
 namespace ISXMM
 {

@@ -1,4 +1,4 @@
-#include "SMTPResponse.h"
+#include "SMTPResponse.hpp"
 
 namespace ISXResponse
 {

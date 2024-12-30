@@ -1,5 +1,5 @@
-#include "SmartSocket.h"
-#include "Handlers.h"
+#include "SmartSocket.hpp"
+#include "Handlers.hpp"
 
 #include <iostream>
 #include <boost/asio/steady_timer.hpp>

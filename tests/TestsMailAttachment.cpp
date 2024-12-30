@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "MailAttachment.h"
+#include "MailAttachment.hpp"
 #include <filesystem>
 
 TEST(MailAttachmentTest, GetPath) {

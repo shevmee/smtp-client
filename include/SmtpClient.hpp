@@ -1,7 +1,7 @@
 #pragma once
 
-#include "MailMessage.h"
-#include "SmartSocket.h"
+#include "MailMessage.hpp"
+#include "SmartSocket.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
