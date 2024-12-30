@@ -77,9 +77,7 @@ future<void> SmtpClient::AsyncRegister(const string& username, const string& pas
     std::string register_string = '\0' + username + '\0' + password;
     std::string encoded_register_string = ISXBase64::Base64Encode(register_string);
 
-    std::string query = (format("%1% %2% \r\n")
-        % S_CMD_REGISTER
-        % encoded_register_string).str();
+    std::string query = std::format("{} {}", S_CMD_REGISTER, encoded_register_string);
 
     asio::spawn(
         m_smart_socket->GetIoContext()
@@ -114,9 +112,7 @@ future<void> SmtpClient::AsyncAuthenticate(const string& username, const string&
     std::string auth_string = '\0' + username + '\0' + password;
     std::string encoded_auth_string = ISXBase64::Base64Encode(auth_string);
 
-    std::string query = (format("%1% %2% \r\n")
-        % S_CMD_AUTH_PLAIN
-        % encoded_auth_string).str();
+    std::string query = std::format("{} {}", S_CMD_AUTH_PLAIN, encoded_auth_string);
 
     asio::spawn(
         m_smart_socket->GetIoContext()
@@ -176,7 +172,7 @@ future<void> SmtpClient::AsyncSendMail(const ISXMM::MailMessage& mail_message)
                 });
                 message_sender.SendMessage();
 
-                m_smart_socket->AsyncWriteCoroutine("\r\n.\r\n", yield);
+                m_smart_socket->AsyncWriteCoroutine("\r\n.", yield);
                 ISXResponse::SMTPResponse::CheckStatus(
                     m_smart_socket->AsyncReadCoroutine(yield), ISXResponse::StatusType::PositiveCompletion);
                 
@@ -244,17 +240,14 @@ bool SmtpClient::SetTimeout(int timeout)
 
 bool SmtpClient::AsyncSendEhloCmd(asio::yield_context& yield)
 {
-    string query = (format("%1% %2%:%3% \r\n")
-        % S_CMD_EHLO
-        % m_smart_socket->GetLocalname()
-        % m_smart_socket->GetLocalPort()).str();
+    string query = std::format("{} {}:{}", S_CMD_EHLO, m_smart_socket->GetLocalname(), m_smart_socket->GetLocalPort());
 
     return m_smart_socket->AsyncWriteCoroutine(query, yield);   
 };
 
 bool SmtpClient::AsyncSendStartTlsCmd(asio::yield_context& yield)
 {
-    return m_smart_socket->AsyncWriteCoroutine(S_CMD_STARTTLS + "\r\n", yield);
+    return m_smart_socket->AsyncWriteCoroutine(S_CMD_STARTTLS, yield);
 };
 
 bool SmtpClient::AsyncUpgradeSecurity(asio::yield_context& yield)
@@ -264,9 +257,7 @@ bool SmtpClient::AsyncUpgradeSecurity(asio::yield_context& yield)
 
 bool SmtpClient::AsyncSendMailFromCmd(const ISXMM::MailAddress& mail_address, asio::yield_context& yield)
 {
-    string query = (format("%1%: <%2%> \r\n")
-        % S_CMD_MAIL_FROM
-        % mail_address.get_address()).str();
+    string query = std::format("{}: <{}>", S_CMD_MAIL_FROM, mail_address.get_address());
 
     return m_smart_socket->AsyncWriteCoroutine(query, yield);
 };
@@ -274,9 +265,7 @@ bool SmtpClient::AsyncSendMailFromCmd(const ISXMM::MailAddress& mail_address, as
 bool SmtpClient::AsyncSendRcptToCmd(const ISXMM::MailAddress& mail_address, asio::yield_context& yield)
 {
 
-    string query = (format("%1%: <%2%> \r\n")
-        % S_CMD_RCPT_TO
-        % mail_address.get_address()).str();
+    string query = std::format("{}: <{}>", S_CMD_RCPT_TO, mail_address.get_address());
             
 
     return m_smart_socket->AsyncWriteCoroutine(query, yield);
@@ -284,11 +273,11 @@ bool SmtpClient::AsyncSendRcptToCmd(const ISXMM::MailAddress& mail_address, asio
 
 bool SmtpClient::AsyncSendDataCmd(asio::yield_context& yield)
 {
-    return m_smart_socket->AsyncWriteCoroutine(S_CMD_DATA + "\r\n", yield);
+    return m_smart_socket->AsyncWriteCoroutine(S_CMD_DATA, yield);
 };
 
 bool SmtpClient::AsyncSendQuitCmd(asio::yield_context& yield)
 {
-    return m_smart_socket->AsyncWriteCoroutine(S_CMD_QUIT + "\r\n", yield);
+    return m_smart_socket->AsyncWriteCoroutine(S_CMD_QUIT, yield);
 };
 }; // namespace ISXSC

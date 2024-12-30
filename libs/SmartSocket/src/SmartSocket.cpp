@@ -94,20 +94,21 @@ bool SmartSocket::AsyncConnectCoroutine(const string& server, int port, asio::yi
 bool SmartSocket::AsyncWriteCoroutine(const string& data, asio::yield_context& yield)
 {
     system::error_code ec;
+    auto data_crlf = data + "\r\n";
     
     auto timer = StartTimer(m_timeout, yield, ec);
 
     if (!m_ssl_enabled)
     {
-        asio::async_write(m_socket.next_layer(), asio::buffer(data), yield[ec]);
+        asio::async_write(m_socket.next_layer(), asio::buffer(data_crlf), yield[ec]);
     } else
     {
-        asio::async_write(m_socket, asio::buffer(data), yield[ec]);
+        asio::async_write(m_socket, asio::buffer(data_crlf), yield[ec]);
     };
 
     timer->cancel();
 
-    return ISXLogs::SmartSocketMethodsHandlers::HandleWrite(data, ec);
+    return ISXLogs::SmartSocketMethodsHandlers::HandleWrite(data_crlf, ec);
 };
 
 ISXResponse::SMTPResponse SmartSocket::AsyncReadCoroutine(asio::yield_context& yield)
