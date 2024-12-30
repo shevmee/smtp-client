@@ -1,36 +1,23 @@
 #include "Handlers.hpp"
 
 #include <regex>
+#include <string_view>
+#include <format>
+#include <expected>
 
 namespace ISXLogs
 {
-void SmartSocketMethodsHandlers::HandleError(
-    const string& prefix, const boost::system::error_code& error_code)
-{
-    *s_log_stream << prefix << ": " << error_code.message() << std::endl;
-    throw std::runtime_error(error_code.message());
-};
-
-void SmartSocketMethodsHandlers::HandleTimeout(
-    const boost::system::error_code& error_code)
-{
-    if (error_code == boost::asio::error::operation_aborted)
-    {
-        *s_log_stream << "Log: Timeout maybe reached" << std::endl;
-    };
-};
-
 bool SmartSocketMethodsHandlers::HandleConnection(
     const string& server, const int port
     , const boost::system::error_code& error_code)
 {
     if (!error_code)
     {
-        *s_log_stream << "Log: " << "Successfully connected to " << server << ":" << port << std::endl;
+        *s_log_stream << std::format("Log: Successfully connected to {}:{}", server, port) << std::endl;
         return true;
     }
 
-    HandleError("Connection error", error_code);
+    logError("Connection error", error_code);
     return false;
 };
 
@@ -42,7 +29,7 @@ bool SmartSocketMethodsHandlers::HandleRemoteEndpointOp(
         return true;
     }
 
-    HandleError("RemoteEndpoint error", error_code);
+    logError("RemoteEndpoint error", error_code);
     return false;
 };
 
@@ -53,12 +40,12 @@ bool SmartSocketMethodsHandlers::HandleWrite(
 {
     if (!error_code)
     {
-        *s_log_stream << "C: " << data;
+        *s_log_stream << std::format("C: {}", data) << std::endl;
         return true;
     }
 
-    HandleTimeout(error_code);
-    HandleError("Write error", error_code);
+    handleTimeout(error_code);
+    logError("Write error", error_code);
     return false;
 };
 
@@ -68,10 +55,10 @@ ISXResponse::SMTPResponse SmartSocketMethodsHandlers::HandleRead(
 {
     if (error_code && error_code != boost::asio::error::operation_aborted)
     {
-        HandleError("Reading error", error_code);
+        logError("Reading error", error_code);
     } else if (error_code == boost::asio::error::operation_aborted)
     {
-        HandleError("Reading error", boost::asio::error::timed_out);
+        logError("Reading error", boost::asio::error::timed_out);
     };
 
     if(!error_code)
@@ -89,8 +76,9 @@ ISXResponse::SMTPResponse SmartSocketMethodsHandlers::HandleRead(
         return smtp_response;
     };
 
-    HandleTimeout(error_code);
-    HandleError("Reading error", error_code);
+    handleTimeout(error_code);
+    logError("Reading error", error_code);
+    return ISXResponse::SMTPResponse("");
 };
 
 bool SmartSocketMethodsHandlers::HandleClose(
@@ -99,12 +87,12 @@ bool SmartSocketMethodsHandlers::HandleClose(
 {
     if (!error_code)
     {
-        *s_log_stream << "Log: " << "Connection closed" << std::endl;
+        *s_log_stream << "Log: Connection closed" << std::endl;
         *ssl_toggle = false;
         return true;
     }
 
-    HandleError("Close error", error_code);
+    logError("Close error", error_code);
     return false;
 };
 
@@ -114,13 +102,13 @@ bool SmartSocketMethodsHandlers::HandleUpgradeSecurity(
 {
     if (!error_code)
     {
-        *s_log_stream << "Log: " << "Handshake successful. Connection upgraded to TLS" << std::endl;
+        *s_log_stream << "Log: Handshake successful. Connection upgraded to TLS" << std::endl;
         *ssl_toggle = true;
         return true;
     }
 
     *ssl_toggle = false;
-    HandleError("Update security error", error_code);
+    logError("Update security error", error_code);
     return false;
 };
 }; // namespace ISXLogs

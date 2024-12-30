@@ -2,7 +2,9 @@
 
 #include <boost/system/error_code.hpp>
 #include <boost/asio.hpp>
+
 #include <iostream>
+#include <functional>
 
 #include "SMTPResponse.hpp"
 
@@ -37,15 +39,21 @@ public:
         , bool* ssl_toggle);
 
 private:
-    static inline void HandleError(
-        const string& prefix, const boost::system::error_code& error_code);
-    
-    static inline void HandleTimeout(
-        const boost::system::error_code& error_code);
+    static inline std::ostream* s_log_stream = &std::clog;
+
+    static inline std::function<void(const std::string&, const boost::system::error_code&)> logError = 
+        [](const std::string& prefix, const boost::system::error_code& error_code) {
+            *s_log_stream << std::format("{}: Error Code {}: {}", prefix, error_code.value(), error_code.message()) << std::endl;
+        };
+
+    static inline std::function<void(const boost::system::error_code&)> handleTimeout =
+        [](const boost::system::error_code& error_code) {
+            if (error_code == boost::asio::error::operation_aborted) {
+                *s_log_stream << "Log: Timeout maybe reached" << std::endl;
+            }
+        };
         
     SmartSocketMethodsHandlers() = delete;
     ~SmartSocketMethodsHandlers() = delete;
-
-    static inline std::ostream* s_log_stream = &std::clog;
 };
 }; // namespace ISXLogs
