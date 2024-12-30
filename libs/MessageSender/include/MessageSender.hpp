@@ -1,31 +1,29 @@
-#include <functional>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 
-#include "MailMessageFormatter.hpp"
 #include "Base64.hpp"
+#include "MailMessageFormatter.hpp"
 
+namespace ISXMS {
 
+class MessageSender {
+ public:
+  MessageSender(const ISXMM::MailMessage &message,
+                std::function<bool(const std::string &)> send);
 
-namespace ISXMS
-{
+  bool SendMessage();
 
-class MessageSender
-{
-public:
-    MessageSender(const ISXMM::MailMessage& message, std::function<bool(const std::string&)> send);
+ private:
+  static uint16_t inline S_FILE_CHUNK_SIZE = 72;
+  ISXMM::MailMessage m_message;
+  std::function<bool(const std::string &)> m_send;
 
-    bool SendMessage();
-private:
-    static uint16_t inline S_FILE_CHUNK_SIZE = 72;
-    ISXMM::MailMessage m_message;
-    std::function<bool(const std::string&)> m_send;
+  bool SendMailHeaders();
+  bool SendMailBody();
+  bool SendAttachments();
 
-    bool SendMailHeaders();
-    bool SendMailBody();
-    bool SendAttachments();
-
-    bool SendFile(const std::filesystem::path& path);
+  bool SendFile(const std::filesystem::path &path);
 };
 
-}; // namespace ISXMS
+};  // namespace ISXMS

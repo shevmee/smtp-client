@@ -53,3 +53,41 @@ target_link_libraries(client PRIVATE
     MessageSender
     Threads::Threads         # Link pthreads (required for Boost components with threading)
 )
+
+# --- clang-format Integration ---
+
+# Check if clang-format is available
+find_program(CLANG_FORMAT_EXECUTABLE clang-format)
+
+# If clang-format is found, create a custom target to run it
+if(CLANG_FORMAT_EXECUTABLE)
+    # Collect all .cpp and .hpp files recursively using valid paths
+    file(GLOB_RECURSE SOURCE_FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/*.cpp
+    )
+
+    # Collect all .cpp and .hpp files in libs subdirectories
+    file(GLOB_RECURSE LIB_FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/*/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/*/*.hpp
+    )
+
+    # Combine both sets of files
+    list(APPEND SOURCE_FILES ${LIB_FILES})
+
+    # Add a custom target to run clang-format
+    add_custom_target(
+        format ALL
+        COMMAND ${CLANG_FORMAT_EXECUTABLE} -i -style=Google ${SOURCE_FILES}
+        COMMENT "Running clang-format on all source files"
+        DEPENDS ${SOURCE_FILES}
+    )
+
+    # Ensure clang-format runs before the build (this makes it a pre-build step)
+    add_dependencies(client format)
+else()
+    message(WARNING "clang-format not found. Skipping formatting.")
+endif()
