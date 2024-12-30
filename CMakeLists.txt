@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.31)
+cmake_policy(SET CMP0167 NEW)
 
 project(SmtpClient VERSION 1.0)
 
