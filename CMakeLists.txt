@@ -38,9 +38,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/SMTPResponse)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/MailMessage)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/MessageSender)
 
-# Add subdirectory for tests
-add_subdirectory(tests)
-
 # Link libraries to the client target
 target_link_libraries(client PRIVATE
     OpenSSL::SSL

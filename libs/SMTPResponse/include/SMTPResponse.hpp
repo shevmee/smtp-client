@@ -29,11 +29,11 @@ class SMTPResponse {
   auto SplitAtEndline(const std::string &response) const
       -> std::pair<std::string, std::string>;
 
-  u_int16_t m_code;
+  u_int16_t m_code{0};
   std::string m_enhanced_code;
   std::string m_text;
   std::string m_formated_response;
   std::string m_raw_response;
-  StatusType m_status;
+  StatusType m_status{StatusType::Undefined};
 };
 }  // namespace ISXResponse

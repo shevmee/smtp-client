@@ -1,5 +1,7 @@
 #include "SMTPResponse.hpp"
 
+#include <format>
+
 namespace ISXResponse {
 SMTPResponse::SMTPResponse(const std::string &response) {
   ParseResponse(response);
@@ -41,8 +43,8 @@ std::string SMTPResponse::get_raw_response() const { return m_raw_response; }
 void SMTPResponse::CheckStatus(const SMTPResponse &response,
                                StatusType status) {
   if (!response.StatusEquals(status)) {
-    throw std::runtime_error("Unexpected status code in response: " +
-                             response.get_raw_response());
+    throw std::runtime_error(std::format(
+        "Unexpected status code in response: {}", response.get_raw_response()));
   }
 }
 
@@ -76,7 +78,9 @@ void SMTPResponse::FormatResponse(const std::string &response) {
 
 bool SMTPResponse::IsValidResponse(const std::string &response,
                                    std::smatch &matches) const {
-  std::regex responsePattern(R"(^(\d{3})(?:[ -](\d\.\d\.\d))?[ -](.*)$)");
+  static const std::regex responsePattern(
+      R"(^(\d{3})(?:[ -](\d\.\d\.\d))?[ -](.*)$)");
+
   return std::regex_match(response, matches, responsePattern);
 }
 
