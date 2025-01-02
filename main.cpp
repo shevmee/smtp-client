@@ -33,7 +33,7 @@ int main() {
   try {
     smtp_client->AsyncConnect("smtp.gmail.com", 587).get();
     smtp_client
-        ->AsyncAuthenticate("shevtsov00mkh@gmail.com", "luui evlt mdor itxi")
+        ->AsyncAuthenticate("", "")
         .get();
 
     ISXMM::MailMessageBuilder mail_builder;

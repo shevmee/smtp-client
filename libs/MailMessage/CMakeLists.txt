@@ -22,6 +22,7 @@ set(SOURCES
 )
 
 set(TEST_SOURCES
+    test/TestsMailAddress.cpp
     test/TestsMailAttachment.cpp
     test/TestsMailMessageBuilder.cpp
     test/TestsMailMessageFormatter.cpp
