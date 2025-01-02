@@ -6,10 +6,10 @@
 namespace ISXMM {
 MailAddress::MailAddress(std::string_view address, std::string_view name)
     : m_address(address), m_name(name) {
-    //   if (!is_valid_email(m_address)) {
-    //   throw std::invalid_argument("Invalid email address format: " +
-    //                               std::string(m_address));
-    //   }
+  //   if (!is_valid_email(m_address)) {
+  //   throw std::invalid_argument("Invalid email address format: " +
+  //                               std::string(m_address));
+  //   }
 }
 
 std::string_view MailAddress::get_address() const { return m_address; }

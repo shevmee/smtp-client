@@ -1,8 +1,6 @@
 #include "MailMessageFormatter.hpp"
 
 #include <format>
-#include <iostream>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -11,6 +9,7 @@
 #include "MailMessage.hpp"
 
 namespace ISXMM {
+
 std::string MailMessageFormatter::MailFrom(const MailAddress &from) {
   if (from.get_name().empty()) {
     return std::format("From: {}\r\n", from.get_address());
@@ -19,80 +18,76 @@ std::string MailMessageFormatter::MailFrom(const MailAddress &from) {
 }
 
 std::string MailMessageFormatter::MailTo(const std::vector<MailAddress> &to) {
-  std::ostringstream to_stream;
-  to_stream << "To: ";
+  std::string to_list = "To: ";
   for (const auto &address : to) {
     if (address.get_name().empty()) {
-      to_stream << address.get_address() << ", ";
+      to_list += std::format("{}, ", address.get_address());
     } else {
-      to_stream << address.get_name() << " <" << address.get_address() << ">, ";
+      to_list +=
+          std::format("{} <{}>, ", address.get_name(), address.get_address());
     }
   }
-  std::string to_string = to_stream.str();
-  to_string.erase(to_string.length() - 2, 2);
-  to_string += "\r\n";
-
-  return to_string;
+  if (!to_list.empty()) {
+    to_list.erase(to_list.length() - 2, 2);  // Remove trailing comma and space
+  }
+  to_list += "\r\n";
+  return to_list;
 }
 
 std::string MailMessageFormatter::MailCc(const std::vector<MailAddress> &cc) {
   if (cc.empty()) {
     return "";
   }
-
-  std::ostringstream cc_stream;
-  cc_stream << "Cc: ";
+  std::string cc_list = "Cc: ";
   for (const auto &address : cc) {
     if (address.get_name().empty()) {
-      cc_stream << address.get_address() << ", ";
+      cc_list += std::format("{}, ", address.get_address());
     } else {
-      cc_stream << address.get_name() << " <" << address.get_address() << ">, ";
+      cc_list +=
+          std::format("{} <{}>, ", address.get_name(), address.get_address());
     }
   }
-  std::string cc_string = cc_stream.str();
-  cc_string.erase(cc_string.length() - 2, 2);
-  cc_string += "\r\n";
-
-  return cc_string;
+  if (!cc_list.empty()) {
+    cc_list.erase(cc_list.length() - 2, 2);  // Remove trailing comma and space
+  }
+  cc_list += "\r\n";
+  return cc_list;
 }
 
 std::string MailMessageFormatter::MailHeaders(const MailMessage &message) {
-  std::ostringstream headers;
-  headers << MailFrom(message.from) << MailTo(message.to) << MailCc(message.cc)
-          << "Subject: " + message.subject + "\r\n";
+  std::string headers = MailFrom(message.from) + MailTo(message.to) +
+                        MailCc(message.cc) +
+                        std::format("Subject: {}\r\n", message.subject);
 
   if (!message.attachments.empty()) {
-    headers << "MIME-Version: 1.0\r\n"
-            << "Content-Type: multipart/mixed; boundary=\"" + boundary +
-                   "\"\r\n";
+    headers += std::format(
+        "MIME-Version: 1.0\r\nContent-Type: multipart/mixed; "
+        "boundary=\"{}\"\r\n",
+        boundary);
   }
 
-  headers << "\r\n";
-  return headers.str();
+  headers += "\r\n";
+  return headers;
 }
 
 std::string MailMessageFormatter::MailBody(const MailMessage &message) {
-  std::ostringstream body;
-
+  std::string body;
   if (!message.attachments.empty()) {
-    body << "--" + boundary + "\r\n"
-         << "Content-Type: text/plain; charset=\"UTF-8\"\r\n"
-         << "Content-Transfer-Encoding: 7bit\r\n\r\n";
+    body += std::format(
+        "--{}\r\nContent-Type: text/plain; "
+        "charset=\"UTF-8\"\r\nContent-Transfer-Encoding: 7bit\r\n\r\n",
+        boundary);
   }
-
-  body << message.body + "\r\n";
-  return body.str();
+  body += message.body + "\r\n";
+  return body;
 }
 
 std::string MailMessageFormatter::MailAttachmentHeaders(
     const MailAttachment &attachment, const std::string &filetype) {
-  std::ostringstream formatted_attachments;
-  formatted_attachments << "Content-Type: " << filetype
-                        << "; name=\"" + attachment.get_name() + "\"\r\n"
-                        << "Content-Transfer-Encoding: base64\r\n"
-                        << "Content-Disposition: attachment; filename=\"" +
-                               attachment.get_name() + "\"\r\n\r\n";
-
-  return formatted_attachments.str();
+  return std::format(
+      "Content-Type: {}; name=\"{}\"\r\nContent-Transfer-Encoding: "
+      "base64\r\nContent-Disposition: attachment; filename=\"{}\"\r\n\r\n",
+      filetype, attachment.get_name(), attachment.get_name());
 }
+
 }  // namespace ISXMM

@@ -5,44 +5,42 @@
 #include "MailMessage.hpp"
 
 namespace ISXMM {
-MailMessageBuilder &MailMessageBuilder::set_from(const std::string &email,
-                                                 const std::string &name) {
+MailMessageBuilder &MailMessageBuilder::set_from(std::string_view email,
+                                                 std::string_view name) {
   m_from = {email, name};
   return *this;
 }
 
-MailMessageBuilder &MailMessageBuilder::add_to(const std::string &email,
-                                               const std::string &name) {
-  m_to.push_back({email, name});
+MailMessageBuilder &MailMessageBuilder::add_to(std::string_view email,
+                                               std::string_view name) {
+  m_to.emplace_back(email, name);
   return *this;
 }
 
-MailMessageBuilder &MailMessageBuilder::add_cc(const std::string &email,
-                                               const std::string &name) {
-  m_cc.push_back({email, name});
+MailMessageBuilder &MailMessageBuilder::add_cc(std::string_view email,
+                                               std::string_view name) {
+  m_cc.emplace_back(email, name);
   return *this;
 }
 
-MailMessageBuilder &MailMessageBuilder::add_bcc(const std::string &email,
-                                                const std::string &name) {
-  m_bcc.push_back({email, name});
+MailMessageBuilder &MailMessageBuilder::add_bcc(std::string_view email,
+                                                std::string_view name) {
+  m_bcc.emplace_back(email, name);
   return *this;
 }
 
-MailMessageBuilder &MailMessageBuilder::set_subject(
-    const std::string &subject) {
+MailMessageBuilder &MailMessageBuilder::set_subject(std::string_view subject) {
   m_subject = subject;
   return *this;
 }
 
-MailMessageBuilder &MailMessageBuilder::set_body(const std::string &body) {
+MailMessageBuilder &MailMessageBuilder::set_body(std::string_view body) {
   m_body = body;
   return *this;
 }
 
-MailMessageBuilder &MailMessageBuilder::add_attachment(
-    const std::string &path) {
-  m_attachments.push_back({path});
+MailMessageBuilder &MailMessageBuilder::add_attachment(std::string_view path) {
+  m_attachments.emplace_back(path);
 
   return *this;
 }
