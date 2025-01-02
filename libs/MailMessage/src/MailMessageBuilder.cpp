@@ -42,11 +42,7 @@ MailMessageBuilder &MailMessageBuilder::set_body(const std::string &body) {
 
 MailMessageBuilder &MailMessageBuilder::add_attachment(
     const std::string &path) {
-  try {
-    m_attachments.push_back({path});
-  } catch (const std::exception &e) {
-    throw e;
-  }
+  m_attachments.push_back({path});
 
   return *this;
 }

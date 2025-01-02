@@ -1,93 +1,100 @@
 #include "Handlers.hpp"
 
+#include <boost/asio.hpp>
 #include <format>
+#include <iterator>
+#include <sstream>
+#include <string>
 
 namespace ISXLogs {
-bool SmartSocketMethodsHandlers::HandleConnection(
-    const string &server, const int port,
+
+std::expected<void, std::string> SmartSocketMethodsHandlers::HandleConnection(
+    const std::string &server, const int port,
     const boost::system::error_code &error_code) {
   if (!error_code) {
     *s_log_stream << std::format("Log: Successfully connected to {}:{}", server,
                                  port)
                   << std::endl;
-    return true;
+    return {};
   }
 
   logError("Connection error", error_code);
-  return false;
-};
+  return std::unexpected("Connection error");
+}
 
-bool SmartSocketMethodsHandlers::HandleRemoteEndpointOp(
+std::expected<void, std::string>
+SmartSocketMethodsHandlers::HandleRemoteEndpointOp(
     const boost::system::error_code &error_code) {
   if (!error_code) {
-    return true;
+    return {};
   }
 
   logError("RemoteEndpoint error", error_code);
-  return false;
-};
+  return std::unexpected("RemoteEndpoint error");
+}
 
-bool SmartSocketMethodsHandlers::HandleWrite(
-    const string &data, const boost::system::error_code &error_code) {
+std::expected<void, std::string> SmartSocketMethodsHandlers::HandleWrite(
+    const std::string &data, const boost::system::error_code &error_code) {
   if (!error_code) {
     *s_log_stream << std::format("C: {}", data) << std::endl;
-    return true;
+    return {};
   }
 
   handleTimeout(error_code);
   logError("Write error", error_code);
-  return false;
-};
+  return std::unexpected("Write error");
+}
 
-ISXResponse::SMTPResponse SmartSocketMethodsHandlers::HandleRead(
+std::expected<ISXResponse::SMTPResponse, std::string>
+SmartSocketMethodsHandlers::HandleRead(
     boost::asio::streambuf &buffer,
     const boost::system::error_code &error_code) {
-  if (error_code && error_code != boost::asio::error::operation_aborted) {
-    logError("Reading error", error_code);
-  } else if (error_code == boost::asio::error::operation_aborted) {
-    logError("Reading error", boost::asio::error::timed_out);
-  };
+  if (error_code) {
+    if (error_code == boost::asio::error::operation_aborted) {
+      logError("Reading error", boost::asio::error::timed_out);
+    } else {
+      logError("Reading error", error_code);
+    }
+    handleTimeout(error_code);
+    return std::unexpected("Reading error");
+  }
 
-  if (!error_code) {
-    std::stringstream response;
-    std::copy(boost::asio::buffers_begin(buffer.data()),
-              boost::asio::buffers_end(buffer.data()),
-              std::ostream_iterator<char>(response));
+  std::stringstream response;
+  std::copy(boost::asio::buffers_begin(buffer.data()),
+            boost::asio::buffers_end(buffer.data()),
+            std::ostream_iterator<char>(response));
 
-    ISXResponse::SMTPResponse smtp_response(response.str());
-    *s_log_stream << smtp_response.get_formated_response();
+  ISXResponse::SMTPResponse smtp_response(response.str());
+  *s_log_stream << smtp_response.get_formated_response();
 
-    return smtp_response;
-  };
+  return smtp_response;
+}
 
-  handleTimeout(error_code);
-  logError("Reading error", error_code);
-  return ISXResponse::SMTPResponse("");
-};
-
-bool SmartSocketMethodsHandlers::HandleClose(
+std::expected<void, std::string> SmartSocketMethodsHandlers::HandleClose(
     const boost::system::error_code &error_code, bool *ssl_toggle) {
   if (!error_code) {
     *s_log_stream << "Log: Connection closed" << std::endl;
     *ssl_toggle = false;
-    return true;
+    return {};
   }
 
   logError("Close error", error_code);
-  return false;
-};
+  return std::unexpected("Close error");
+}
 
-bool SmartSocketMethodsHandlers::HandleUpgradeSecurity(
+std::expected<void, std::string>
+SmartSocketMethodsHandlers::HandleUpgradeSecurity(
     const boost::system::error_code &error_code, bool *ssl_toggle) {
   if (!error_code) {
     *s_log_stream << "Log: Handshake successful. Connection upgraded to TLS"
                   << std::endl;
     *ssl_toggle = true;
-    return true;
+    return {};
   }
 
   *ssl_toggle = false;
   logError("Update security error", error_code);
-  return false;
-};
-};  // namespace ISXLogs
+  return std::unexpected("Update security error");
+}
+
+}  // namespace ISXLogs

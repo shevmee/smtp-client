@@ -3,10 +3,12 @@
 #include <boost/asio/steady_timer.hpp>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 
 #include "Handlers.hpp"
 
 namespace ISXSmartSocket {
+
 SmartSocket::SmartSocket(asio::io_context &io_context,
                          asio::ssl::context &ssl_context)
     : m_io_context(io_context),
@@ -15,17 +17,11 @@ SmartSocket::SmartSocket(asio::io_context &io_context,
       m_socket(io_context, ssl_context),
       m_ssl_enabled(false){};
 
-SmartSocket::~SmartSocket() {
-  try {
-    Close();
-  } catch (const std::exception &e) {
-    std::cerr << "Exception in destructor called" << std::endl;
-  }
-};
+SmartSocket::~SmartSocket() { Close(); };
 
 bool SmartSocket::IsOpen() const { return m_socket.next_layer().is_open(); };
 
-string SmartSocket::GetLocalname() const {
+std::string SmartSocket::GetLocalname() const {
   return m_socket.next_layer().local_endpoint().address().to_string();
 };
 
@@ -33,18 +29,24 @@ int SmartSocket::GetLocalPort() const {
   return m_socket.next_layer().local_endpoint().port();
 };
 
-string SmartSocket::GetServername() const {
+std::string SmartSocket::GetServername() const {
   system::error_code ec;
-  string server_name =
+  std::string server_name =
       m_socket.next_layer().remote_endpoint(ec).address().to_string();
-  ISXLogs::SmartSocketMethodsHandlers::HandleRemoteEndpointOp(ec);
+  auto result = ISXLogs::SmartSocketMethodsHandlers::HandleRemoteEndpointOp(ec);
+  if (!result) {
+    throw std::runtime_error(result.error());
+  }
   return server_name;
 };
 
 int SmartSocket::GetServerPort() const {
   system::error_code ec;
   int server_port = m_socket.next_layer().remote_endpoint(ec).port();
-  ISXLogs::SmartSocketMethodsHandlers::HandleRemoteEndpointOp(ec);
+  auto result = ISXLogs::SmartSocketMethodsHandlers::HandleRemoteEndpointOp(ec);
+  if (!result) {
+    throw std::runtime_error(result.error());
+  }
   return server_port;
 };
 
@@ -57,7 +59,7 @@ bool SmartSocket::SetTimeout(int timeout) {
   return true;
 };
 
-bool SmartSocket::AsyncConnectCoroutine(const string &server, int port,
+bool SmartSocket::AsyncConnectCoroutine(const std::string &server, int port,
                                         asio::yield_context &yield) {
   m_server = server;
   m_port = port;
@@ -74,11 +76,15 @@ bool SmartSocket::AsyncConnectCoroutine(const string &server, int port,
 
   timer->cancel();
 
-  return ISXLogs::SmartSocketMethodsHandlers::HandleConnection(
+  auto result = ISXLogs::SmartSocketMethodsHandlers::HandleConnection(
       GetServername(), GetServerPort(), ec);
+  if (!result) {
+    throw std::runtime_error(result.error());
+  }
+  return true;
 };
 
-bool SmartSocket::AsyncWriteCoroutine(const string &data,
+bool SmartSocket::AsyncWriteCoroutine(const std::string &data,
                                       asio::yield_context &yield) {
   system::error_code ec;
   auto data_crlf = data + "\r\n";
@@ -94,7 +100,11 @@ bool SmartSocket::AsyncWriteCoroutine(const string &data,
 
   timer->cancel();
 
-  return ISXLogs::SmartSocketMethodsHandlers::HandleWrite(data_crlf, ec);
+  auto result = ISXLogs::SmartSocketMethodsHandlers::HandleWrite(data_crlf, ec);
+  if (!result) {
+    throw std::runtime_error(result.error());
+  }
+  return true;
 };
 
 ISXResponse::SMTPResponse SmartSocket::AsyncReadCoroutine(
@@ -112,7 +122,11 @@ ISXResponse::SMTPResponse SmartSocket::AsyncReadCoroutine(
 
   timer->cancel();
 
-  return ISXLogs::SmartSocketMethodsHandlers::HandleRead(buffer, ec);
+  auto result = ISXLogs::SmartSocketMethodsHandlers::HandleRead(buffer, ec);
+  if (!result) {
+    throw std::runtime_error(result.error());
+  }
+  return result.value();
 };
 
 bool SmartSocket::AsyncUpgradeSecurityCoroutine(asio::yield_context &yield) {
@@ -120,8 +134,12 @@ bool SmartSocket::AsyncUpgradeSecurityCoroutine(asio::yield_context &yield) {
   m_socket.async_handshake(
       boost::asio::ssl::stream_base::handshake_type::client, yield[ec]);
   m_ssl_enabled = true;
-  return ISXLogs::SmartSocketMethodsHandlers::HandleUpgradeSecurity(
+  auto result = ISXLogs::SmartSocketMethodsHandlers::HandleUpgradeSecurity(
       ec, &m_ssl_enabled);
+  if (!result) {
+    throw std::runtime_error(result.error());
+  }
+  return true;
 };
 
 bool SmartSocket::Close() {
@@ -130,7 +148,12 @@ bool SmartSocket::Close() {
                                    ec);
   m_socket.lowest_layer().cancel(ec);
   m_socket.lowest_layer().close(ec);
-  return ISXLogs::SmartSocketMethodsHandlers::HandleClose(ec, &m_ssl_enabled);
+  auto result =
+      ISXLogs::SmartSocketMethodsHandlers::HandleClose(ec, &m_ssl_enabled);
+  if (!result) {
+    throw std::runtime_error(result.error());
+  }
+  return true;
 };
 
 std::unique_ptr<asio::steady_timer> SmartSocket::StartTimer(
@@ -150,4 +173,5 @@ std::unique_ptr<asio::steady_timer> SmartSocket::StartTimer(
 
   return timer;
 };
-};  // namespace ISXSmartSocket
+
+}  // namespace ISXSmartSocket

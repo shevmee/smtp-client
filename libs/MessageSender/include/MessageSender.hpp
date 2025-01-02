@@ -1,6 +1,8 @@
+#include <expected>
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <iostream>
 
 #include "Base64.hpp"
 #include "MailMessageFormatter.hpp"
