@@ -1,5 +1,6 @@
 #include "MailMessageFormatter.hpp"
 
+#include <format>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -12,9 +13,9 @@
 namespace ISXMM {
 std::string MailMessageFormatter::MailFrom(const MailAddress &from) {
   if (from.get_name().empty()) {
-    return "From: " + from.get_address() + "\r\n";
+    return std::format("From: {}\r\n", from.get_address());
   }
-  return "From: " + from.get_name() + " <" + from.get_address() + ">\r\n";
+  return std::format("From: {} <{}>\r\n", from.get_name(), from.get_address());
 }
 
 std::string MailMessageFormatter::MailTo(const std::vector<MailAddress> &to) {

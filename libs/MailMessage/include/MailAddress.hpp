@@ -5,10 +5,10 @@
 namespace ISXMM {
 class MailAddress {
  public:
-  MailAddress(const std::string &address = "", const std::string &name = "");
+  MailAddress(std::string_view address = "", std::string_view name = "");
 
-  std::string get_address() const;
-  std::string get_name() const;
+  std::string_view get_address() const;
+  std::string_view get_name() const;
 
  private:
   std::string m_address;

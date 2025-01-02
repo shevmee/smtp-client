@@ -13,9 +13,8 @@ bool MessageSender::SendMessage() {
 bool MessageSender::SendFile(const std::filesystem::path &file_path) {
   bool result = true;
 
-  std::ifstream file;
+  std::ifstream file(file_path, std::ios::binary);
   std::vector<char> buffer(S_FILE_CHUNK_SIZE);
-  file.open(file_path);
 
   if (!file) return false;
   if (std::filesystem::file_size(file_path) > ISXMM::MailAttachment::S_MAX_SIZE)
