@@ -64,10 +64,16 @@ SmartSocketMethodsHandlers::HandleRead(
             boost::asio::buffers_end(buffer.data()),
             std::ostream_iterator<char>(response));
 
-  ISXResponse::SMTPResponse smtp_response(response.str());
-  *s_log_stream << smtp_response.get_formated_response();
+  auto smtp_response_result = ISXResponse::SMTPResponse::Create(response.str());
+  if (!smtp_response_result) {
+    *s_log_stream << std::format("Failed to parse SMTP response: {}",
+                                 smtp_response_result.error());
+    return std::unexpected(smtp_response_result.error());
+  }
 
-  return smtp_response;
+  *s_log_stream << smtp_response_result->get_formated_response();
+
+  return smtp_response_result;
 }
 
 std::expected<void, std::string> SmartSocketMethodsHandlers::HandleClose(

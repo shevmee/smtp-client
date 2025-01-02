@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <stdexcept>
+#include <string>
 
 #include "SMTPResponse.hpp"
 
@@ -8,8 +8,10 @@ using namespace ISXResponse;
 
 // Test Case 1: Valid SMTP Response with positive completion (2xx)
 TEST(SMTPResponseTest, PositiveCompletionResponse) {
-  SMTPResponse response("250 OK");
+  auto result = SMTPResponse::Create("250 OK");
+  ASSERT_TRUE(result);
 
+  SMTPResponse response = std::move(result.value());
   EXPECT_EQ(response.get_code(), 250);
   EXPECT_EQ(response.get_enhanced_code(), "");
   EXPECT_EQ(response.get_text(), "OK");
@@ -20,8 +22,10 @@ TEST(SMTPResponseTest, PositiveCompletionResponse) {
 
 // Test Case 2: Valid SMTP Response with positive intermediate (3xx)
 TEST(SMTPResponseTest, PositiveIntermediateResponse) {
-  SMTPResponse response("354 Start mail input");
+  auto result = SMTPResponse::Create("354 Start mail input");
+  ASSERT_TRUE(result);
 
+  SMTPResponse response = std::move(result.value());
   EXPECT_EQ(response.get_code(), 354);
   EXPECT_EQ(response.get_enhanced_code(), "");
   EXPECT_EQ(response.get_text(), "Start mail input");
@@ -32,8 +36,10 @@ TEST(SMTPResponseTest, PositiveIntermediateResponse) {
 
 // Test Case 3: Valid SMTP Response with transient negative completion (4xx)
 TEST(SMTPResponseTest, TransientNegativeResponse) {
-  SMTPResponse response("421 Service not available");
+  auto result = SMTPResponse::Create("421 Service not available");
+  ASSERT_TRUE(result);
 
+  SMTPResponse response = std::move(result.value());
   EXPECT_EQ(response.get_code(), 421);
   EXPECT_EQ(response.get_enhanced_code(), "");
   EXPECT_EQ(response.get_text(), "Service not available");
@@ -44,8 +50,10 @@ TEST(SMTPResponseTest, TransientNegativeResponse) {
 
 // Test Case 4: Valid SMTP Response with permanent negative completion (5xx)
 TEST(SMTPResponseTest, PermanentNegativeResponse) {
-  SMTPResponse response("550 Requested action not taken");
+  auto result = SMTPResponse::Create("550 Requested action not taken");
+  ASSERT_TRUE(result);
 
+  SMTPResponse response = std::move(result.value());
   EXPECT_EQ(response.get_code(), 550);
   EXPECT_EQ(response.get_enhanced_code(), "");
   EXPECT_EQ(response.get_text(), "Requested action not taken");
@@ -56,8 +64,10 @@ TEST(SMTPResponseTest, PermanentNegativeResponse) {
 
 // Test Case 5: Valid SMTP Response with enhanced code
 TEST(SMTPResponseTest, EnhancedCodeResponse) {
-  SMTPResponse response("250 2.1.5 Recipient OK");
+  auto result = SMTPResponse::Create("250 2.1.5 Recipient OK");
+  ASSERT_TRUE(result);
 
+  SMTPResponse response = std::move(result.value());
   EXPECT_EQ(response.get_code(), 250);
   EXPECT_EQ(response.get_enhanced_code(), "2.1.5");
   EXPECT_EQ(response.get_text(), "Recipient OK");
@@ -68,18 +78,24 @@ TEST(SMTPResponseTest, EnhancedCodeResponse) {
 
 // Test Case 6: Invalid SMTP Response with non-numeric code
 TEST(SMTPResponseTest, InvalidResponseFormat) {
-  EXPECT_THROW(SMTPResponse response("ABC OK"), std::invalid_argument);
+  auto result = SMTPResponse::Create("ABC OK");
+  EXPECT_FALSE(result);
+  EXPECT_EQ(result.error(), "Invalid response format");
 }
 
 // Test Case 7: Invalid SMTP Response with incomplete code
 TEST(SMTPResponseTest, InvalidResponseIncompleteCode) {
-  EXPECT_THROW(SMTPResponse response("25 OK"), std::invalid_argument);
+  auto result = SMTPResponse::Create("25 OK");
+  EXPECT_FALSE(result);
+  EXPECT_EQ(result.error(), "Invalid response format");
 }
 
 // Test Case 8: Valid SMTP Response with unknown status code
 TEST(SMTPResponseTest, UnknownStatusCode) {
-  SMTPResponse response("999 Custom response");
+  auto result = SMTPResponse::Create("999 Custom response");
+  ASSERT_TRUE(result);
 
+  SMTPResponse response = std::move(result.value());
   EXPECT_EQ(response.get_code(), 999);
   EXPECT_EQ(response.get_enhanced_code(), "");
   EXPECT_EQ(response.get_text(), "Custom response");
@@ -90,8 +106,11 @@ TEST(SMTPResponseTest, UnknownStatusCode) {
 
 // Test Case 9: Valid SMTP Response with multiple lines
 TEST(SMTPResponseTest, MultipleLinesResponse) {
-  SMTPResponse response("250 1.4.1 First line\r\nSecond line\r\nThird line");
+  auto result =
+      SMTPResponse::Create("250 1.4.1 First line\r\nSecond line\r\nThird line");
+  ASSERT_TRUE(result);
 
+  SMTPResponse response = std::move(result.value());
   EXPECT_EQ(response.get_code(), 250);
   EXPECT_EQ(response.get_enhanced_code(), "1.4.1");
   EXPECT_EQ(response.get_text(), "First line\r\nSecond line\r\nThird line");
@@ -102,15 +121,19 @@ TEST(SMTPResponseTest, MultipleLinesResponse) {
 
 // Test Case 10: Valid SMTP Response with formatted response
 TEST(SMTPResponseTest, FormattedResponse) {
-  SMTPResponse response("250 OK\r\n");
+  auto result = SMTPResponse::Create("250 OK\r\n");
+  ASSERT_TRUE(result);
 
+  SMTPResponse response = std::move(result.value());
   EXPECT_EQ(response.get_formated_response(), "S: 250 OK\r\n");
 }
 
 // Test Case 11: Valid SMTP Response with formatted response with multiple lines
 TEST(SMTPResponseTest, FormattedResponseMultipleLines) {
-  SMTPResponse response("250 OK\r\nSecond line\r\nThird line\r\n");
+  auto result = SMTPResponse::Create("250 OK\r\nSecond line\r\nThird line\r\n");
+  ASSERT_TRUE(result);
 
+  SMTPResponse response = std::move(result.value());
   EXPECT_EQ(response.get_formated_response(),
             "S: 250 OK\r\nS: Second line\r\nS: Third line\r\n");
 }

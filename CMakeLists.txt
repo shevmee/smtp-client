@@ -88,3 +88,23 @@ if(CLANG_FORMAT_EXECUTABLE)
 else()
     message(WARNING "clang-format not found. Skipping formatting.")
 endif()
+
+# --- clang-tidy Integration ---
+
+# Check if clang-tidy is available
+# find_program(CLANG_TIDY_EXECUTABLE clang-tidy)
+
+# # If clang-tidy is found, configure it for the client target
+# if(CLANG_TIDY_EXECUTABLE)
+#     set(CLANG_TIDY_CHECKS "-*,performance-*,readability-*,modernize-*")
+
+#     # Apply clang-tidy to the client target
+#     set_target_properties(client PROPERTIES
+#         CXX_CLANG_TIDY "${CLANG_TIDY_EXECUTABLE};--checks=${CLANG_TIDY_CHECKS}"
+#     )
+
+#     message(STATUS "clang-tidy enabled for the client target with checks: ${CLANG_TIDY_CHECKS}")
+# else()
+#     message(WARNING "clang-tidy not found. Skipping static analysis.")
+# endif()
+
