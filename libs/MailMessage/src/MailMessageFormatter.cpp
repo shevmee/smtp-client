@@ -28,7 +28,7 @@ std::string MailMessageFormatter::MailTo(const std::vector<MailAddress> &to) {
     }
   }
   if (!to_list.empty()) {
-    to_list.erase(to_list.length() - 2, 2);  // Remove trailing comma and space
+    to_list.erase(to_list.length() - 2, 2);
   }
   to_list += "\r\n";
   return to_list;
@@ -48,7 +48,7 @@ std::string MailMessageFormatter::MailCc(const std::vector<MailAddress> &cc) {
     }
   }
   if (!cc_list.empty()) {
-    cc_list.erase(cc_list.length() - 2, 2);  // Remove trailing comma and space
+    cc_list.erase(cc_list.length() - 2, 2);
   }
   cc_list += "\r\n";
   return cc_list;
