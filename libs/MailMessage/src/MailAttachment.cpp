@@ -5,8 +5,8 @@
 #include <string>
 
 namespace ISXMM {
-MailAttachment::MailAttachment(const std::filesystem::path &path)
-    : m_path(path) {}
+MailAttachment::MailAttachment(std::filesystem::path path)
+    : m_path(std::move(path)) {}
 
 std::filesystem::path MailAttachment::get_path() const { return m_path; }
 

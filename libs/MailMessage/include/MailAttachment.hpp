@@ -6,7 +6,7 @@
 namespace ISXMM {
 class MailAttachment {
  public:
-  MailAttachment(const std::filesystem::path &path = "");
+  MailAttachment(std::filesystem::path path = "");
 
   std::filesystem::path get_path() const;
   std::string get_name() const;
