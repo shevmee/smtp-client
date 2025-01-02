@@ -155,7 +155,11 @@ future<void> SmtpClient::AsyncSendMail(const ISXMM::MailMessage &mail_message) {
           mail_message, [&](const string &query) {
             return m_smart_socket->AsyncWriteCoroutine(query, yield);
           });
-      message_sender.SendMessage();
+      auto msg_send_result = message_sender.SendMessage();
+      // commented for dev purposes: w/o commenting it fails 'cause files to send don't exist
+      // if (!msg_send_result) {
+      //   //throw std::runtime_error(msg_send_result.error());
+      // }
 
       m_smart_socket->AsyncWriteCoroutine("\r\n.", yield);
       ISXResponse::SMTPResponse::CheckStatus(

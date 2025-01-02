@@ -14,18 +14,18 @@ class MessageSender {
   MessageSender(const ISXMM::MailMessage &message,
                 std::function<bool(const std::string &)> send);
 
-  bool SendMessage();
+  std::expected<void, std::string> SendMessage();
 
  private:
   static uint16_t inline S_FILE_CHUNK_SIZE = 72;
   ISXMM::MailMessage m_message;
   std::function<bool(const std::string &)> m_send;
 
-  bool SendMailHeaders();
-  bool SendMailBody();
-  bool SendAttachments();
+  std::expected<void, std::string> SendMailHeaders();
+  std::expected<void, std::string> SendMailBody();
+  std::expected<void, std::string> SendAttachments();
 
-  bool SendFile(const std::filesystem::path &path);
+  std::expected<void, std::string> SendFile(const std::filesystem::path &path);
 };
 
 };  // namespace ISXMS
