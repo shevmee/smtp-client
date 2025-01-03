@@ -33,7 +33,7 @@ int main() {
   try {
     smtp_client->AsyncConnect("smtp.gmail.com", 587).get();
     smtp_client
-        ->AsyncAuthenticate("shevtsov00mkh@gmail.com", "luui evlt mdor itxi")
+        ->AsyncAuthenticate("", "")
         .get();
 
     ISXMM::MailMessageBuilder mail_builder;
@@ -47,8 +47,7 @@ int main() {
     smtp_client->AsyncSendMail(mail_builder.Build()).get();
     finish(io_context, worker, smtp_client);
   } catch (const std::exception &e) {
-    // process exception
-
+    std::cerr << "Exception: " << e.what() << std::endl;
     finish(io_context, worker, smtp_client);
     return 1;
   };

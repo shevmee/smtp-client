@@ -156,8 +156,8 @@ future<void> SmtpClient::AsyncSendMail(const ISXMM::MailMessage &mail_message) {
             return m_smart_socket->AsyncWriteCoroutine(query, yield);
           });
       auto msg_send_result = message_sender.SendMessage();
-      // commented for dev purposes: w/o commenting it fails 'cause files to send don't exist
-      // if (!msg_send_result) {
+      // commented for dev purposes: w/o commenting it fails 'cause files to
+      // send don't exist if (!msg_send_result) {
       //   //throw std::runtime_error(msg_send_result.error());
       // }
 
